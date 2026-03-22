@@ -57,32 +57,27 @@ export async function POST(request: Request, { params }: { params: Params }) {
       )
     }
 
-    // Create the share record (unique constraint handles duplicates)
-    try {
-      const shared = await prisma.sharedStory.create({
-        data: {
-          storyId: id,
-          senderId: session.user.id,
-          recipientId: recipient.id,
-        },
-      })
-      return NextResponse.json({ data: shared, error: null }, { status: 201 })
-    } catch (err: unknown) {
-      // Prisma unique constraint violation
-      if (
-        typeof err === 'object' &&
-        err !== null &&
-        'code' in err &&
-        (err as { code: string }).code === 'P2002'
-      ) {
-        return NextResponse.json(
-          { data: null, error: 'Story already shared with this recipient' },
-          { status: 409 },
-        )
-      }
-      throw err
+    const shared = await prisma.sharedStory.create({
+      data: {
+        storyId: id,
+        senderId: session.user.id,
+        recipientId: recipient.id,
+      },
+    })
+    return NextResponse.json({ data: shared, error: null }, { status: 201 })
+  } catch (err: unknown) {
+    // Prisma unique constraint violation — duplicate share
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'code' in err &&
+      (err as { code: string }).code === 'P2002'
+    ) {
+      return NextResponse.json(
+        { data: null, error: 'Story already shared with this recipient' },
+        { status: 409 },
+      )
     }
-  } catch {
     return NextResponse.json({ data: null, error: 'Unexpected error' }, { status: 500 })
   }
 }
