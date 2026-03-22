@@ -16,9 +16,11 @@ model User {
   password      String?
   createdAt     DateTime  @default(now())
 
-  profiles Profile[]
-  accounts Account[]
-  sessions Session[]
+  profiles       Profile[]
+  accounts       Account[]
+  sessions       Session[]
+  sentShares     SharedStory[] @relation("SentShares")
+  receivedShares SharedStory[] @relation("ReceivedShares")
 }
 
 model Profile {
@@ -41,8 +43,25 @@ model Story {
   imageUrls Json     @default("[]")
   createdAt DateTime @default(now())
 
-  profileId String
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId    String
+  profile      Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  sharedStories SharedStory[]
+}
+
+model SharedStory {
+  id          String   @id @default(cuid())
+  sharedAt    DateTime @default(now())
+
+  storyId     String
+  story       Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  senderId    String
+  sender      User     @relation("SentShares", fields: [senderId], references: [id], onDelete: Cascade)
+
+  recipientId String
+  recipient   User     @relation("ReceivedShares", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, recipientId])
 }
 
 // NextAuth required models
