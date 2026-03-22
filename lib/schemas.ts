@@ -33,6 +33,10 @@ export const registerSchema = z.object({
   password: z.string().min(8),
 })
 
+export const shareStorySchema = z.object({
+  recipientEmail: z.string().email(),
+})
+
 export type AvatarData = z.infer<typeof avatarSchema>
 export type CreateProfileInput = z.infer<typeof createProfileSchema>
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>
