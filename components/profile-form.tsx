@@ -3,26 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AvatarData, CreateProfileInput } from '@/lib/schemas'
-
-const SKIN_TONES: { value: AvatarData['skinTone']; color: string; label: string }[] = [
-  { value: 'tone-1', color: '#FFE0BD', label: 'Light' },
-  { value: 'tone-2', color: '#F4C78A', label: 'Medium light' },
-  { value: 'tone-3', color: '#C68642', label: 'Medium' },
-  { value: 'tone-4', color: '#8D5524', label: 'Dark' },
-]
-
-const HAIR_COLORS: { value: AvatarData['hairColor']; color: string; label: string }[] = [
-  { value: 'black', color: '#1a1a1a', label: 'Black' },
-  { value: 'brown', color: '#8B4513', label: 'Brown' },
-  { value: 'blonde', color: '#E8D47A', label: 'Blonde' },
-  { value: 'red', color: '#C0392B', label: 'Red' },
-]
-
-const HAIR_STYLES: { value: AvatarData['hairStyle']; label: string }[] = [
-  { value: 'straight', label: 'Straight' },
-  { value: 'curly', label: 'Curly' },
-  { value: 'wavy', label: 'Wavy' },
-]
+import { AvatarBuilder, SKIN_TONES } from '@/components/avatar-builder'
 
 interface ProfileFormProps {
   defaultValues?: {
@@ -143,70 +124,14 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       </div>
 
       {/* Avatar builder */}
-      <div className="rounded-xl bg-amber-50 p-4">
-        <p className="mb-4 text-sm font-medium text-amber-900">
-          Avatar <span className="font-normal text-gray-500">(optional)</span>
-        </p>
-
-        {/* Skin tone */}
-        <div className="mb-4">
-          <p className="mb-2 text-xs text-gray-600">Skin tone</p>
-          <div className="flex gap-3">
-            {SKIN_TONES.map(({ value, color, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setSkinTone(value)}
-                aria-label={label}
-                className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 ${
-                  skinTone === value ? 'scale-110 border-amber-600' : 'border-transparent'
-                }`}
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Hair color */}
-        <div className="mb-4">
-          <p className="mb-2 text-xs text-gray-600">Hair color</p>
-          <div className="flex gap-3">
-            {HAIR_COLORS.map(({ value, color, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setHairColor(value)}
-                aria-label={label}
-                className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 ${
-                  hairColor === value ? 'scale-110 border-amber-600' : 'border-transparent'
-                }`}
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Hair style */}
-        <div>
-          <p className="mb-2 text-xs text-gray-600">Hair style</p>
-          <div className="flex gap-2">
-            {HAIR_STYLES.map(({ value, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setHairStyle(value)}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  hairStyle === value
-                    ? 'border-amber-500 bg-amber-100 text-amber-800'
-                    : 'border-gray-200 text-gray-600 hover:border-amber-300'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <AvatarBuilder
+        skinTone={skinTone}
+        hairColor={hairColor}
+        hairStyle={hairStyle}
+        onSkinToneChange={setSkinTone}
+        onHairColorChange={setHairColor}
+        onHairStyleChange={setHairStyle}
+      />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
