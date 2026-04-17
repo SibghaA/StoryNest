@@ -1,0 +1,33 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "StoryNest" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Create your account
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: Email
+          - textbox "Email" [ref=e9]:
+            - /placeholder: you@example.com
+            - text: test@storynest.com
+        - generic [ref=e10]:
+          - generic [ref=e11]: Password
+          - textbox "Password" [ref=e12]:
+            - /placeholder: 8+ characters
+            - text: password123
+        - button "Creating account…" [disabled] [ref=e26]
+      - paragraph [ref=e14]:
+        - text: Already have an account?
+        - link "Sign in" [ref=e15] [cursor=pointer]:
+          - /url: /auth/login
+  - generic [ref=e21] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e22]:
+      - img [ref=e23]
+    - generic [ref=e27]:
+      - button "Open issues overlay" [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: "0"
+          - generic [ref=e31]: "1"
+        - generic [ref=e32]: Issue
+      - button "Collapse issues badge" [ref=e33]:
+        - img [ref=e34]
+  - alert [ref=e16]

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AvatarData, CreateProfileInput } from '@/lib/schemas'
-import { AvatarBuilder, SKIN_TONES } from '@/components/avatar-builder'
+import { AvatarBuilder } from '@/components/avatar-builder'
 
 interface ProfileFormProps {
   defaultValues?: {
@@ -22,20 +22,11 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
   const [ageRange, setAgeRange] = useState<CreateProfileInput['ageRange'] | ''>(
     (defaultValues?.ageRange as CreateProfileInput['ageRange']) ?? '',
   )
-  const [skinTone, setSkinTone] = useState<AvatarData['skinTone'] | ''>(
-    (defaultValues?.avatar?.skinTone as AvatarData['skinTone']) ?? '',
-  )
-  const [hairColor, setHairColor] = useState<AvatarData['hairColor'] | ''>(
-    (defaultValues?.avatar?.hairColor as AvatarData['hairColor']) ?? '',
-  )
-  const [hairStyle, setHairStyle] = useState<AvatarData['hairStyle'] | ''>(
-    (defaultValues?.avatar?.hairStyle as AvatarData['hairStyle']) ?? '',
+  const [avatarVal, setAvatarVal] = useState<Partial<AvatarData>>(
+    (defaultValues?.avatar as Partial<AvatarData>) ?? {},
   )
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-
-  const selectedSkinColor =
-    SKIN_TONES.find(t => t.value === skinTone)?.color ?? '#e5e7eb'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,24 +37,37 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
     setError('')
     setLoading(true)
 
-    const avatar =
-      skinTone && hairColor && hairStyle ? { skinTone, hairColor, hairStyle } : undefined
+    const hasCore = avatarVal.skinTone && avatarVal.hairColor && avatarVal.hairStyle
+    const avatar = hasCore ? avatarVal : undefined
 
     const body = { name, ageRange, avatar }
     const url = isEditing ? `/api/profiles/${defaultValues.id}` : '/api/profiles'
     const method = isEditing ? 'PATCH' : 'POST'
 
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
+    let res: Response
+    try {
+      res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    } catch {
+      setLoading(false)
+      setError('Network error — please try again')
+      return
+    }
 
     setLoading(false)
 
     if (!res.ok) {
-      const data = await res.json()
-      setError(typeof data.error === 'string' ? data.error : 'Something went wrong')
+      let message = 'Something went wrong'
+      try {
+        const data = await res.json()
+        if (typeof data.error === 'string') message = data.error
+      } catch {
+        if (res.status === 401) message = 'You must be signed in to save a profile'
+      }
+      setError(message)
       return
     }
 
@@ -73,16 +77,6 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Avatar preview */}
-      <div className="flex justify-center">
-        <div
-          className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-amber-200 text-3xl font-bold text-gray-700"
-          style={{ backgroundColor: selectedSkinColor }}
-        >
-          {name ? name[0].toUpperCase() : '?'}
-        </div>
-      </div>
-
       {/* Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -124,14 +118,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
       </div>
 
       {/* Avatar builder */}
-      <AvatarBuilder
-        skinTone={skinTone}
-        hairColor={hairColor}
-        hairStyle={hairStyle}
-        onSkinToneChange={setSkinTone}
-        onHairColorChange={setHairColor}
-        onHairStyleChange={setHairStyle}
-      />
+      <AvatarBuilder value={avatarVal} onChange={setAvatarVal} />
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
