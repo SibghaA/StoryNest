@@ -11,7 +11,7 @@ describe('avatarSchema', () => {
     const result = avatarSchema.safeParse({
       skinTone: 'tone-1',
       hairColor: 'black',
-      hairStyle: 'straight',
+      hairStyle: 'open',
     })
     expect(result.success).toBe(true)
   })
@@ -20,7 +20,7 @@ describe('avatarSchema', () => {
     const result = avatarSchema.safeParse({
       skinTone: 'tone-5',
       hairColor: 'black',
-      hairStyle: 'straight',
+      hairStyle: 'open',
     })
     expect(result.success).toBe(false)
   })
@@ -29,7 +29,7 @@ describe('avatarSchema', () => {
     const result = avatarSchema.safeParse({
       skinTone: 'tone-1',
       hairColor: 'purple',
-      hairStyle: 'straight',
+      hairStyle: 'open',
     })
     expect(result.success).toBe(false)
   })

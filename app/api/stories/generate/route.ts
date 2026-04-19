@@ -6,7 +6,12 @@ import { prisma } from '@/lib/prisma'
 import { generateStorySchema } from '@/lib/schemas'
 import { buildStoryPrompt } from '@/lib/prompt'
 
-const anthropic = new Anthropic()
+function getAnthropicClient() {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY is not set')
+  }
+  return new Anthropic()
+}
 
 export async function POST(req: NextRequest) {
   // 1. Auth check
@@ -31,7 +36,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { profileId, keywords, lesson } = result.data
+  const { profileId, keywords, lesson, scenario } = result.data
 
   // 3. Verify profileId belongs to the authenticated user
   const profile = await prisma.profile.findFirst({
@@ -47,9 +52,20 @@ export async function POST(req: NextRequest) {
     ageRange: profile.ageRange,
     keywords,
     lesson,
+    scenario,
   })
 
   // 5. Stream from Claude API
+  let anthropic: Anthropic
+  try {
+    anthropic = getAnthropicClient()
+  } catch {
+    return Response.json(
+      { data: null, error: 'Story generation is not configured. Please contact support.' },
+      { status: 503 },
+    )
+  }
+
   try {
     const claudeStream = await anthropic.messages.stream({
       model: 'claude-sonnet-4-5',

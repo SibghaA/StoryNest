@@ -14,6 +14,20 @@ interface ProfileFormProps {
   }
 }
 
+const VALID_HAIR_STYLES = new Set<string>(['open', 'short', 'pigtails', 'bun', 'braids', 'curly'])
+const HAIR_STYLE_MIGRATION: Record<string, AvatarData['hairStyle']> = {
+  straight: 'open',
+  wavy: 'open',
+}
+
+function sanitizeAvatar(raw: Record<string, string>): Partial<AvatarData> {
+  const hairStyle = raw.hairStyle
+  const migratedHairStyle: AvatarData['hairStyle'] | undefined = VALID_HAIR_STYLES.has(hairStyle)
+    ? (hairStyle as AvatarData['hairStyle'])
+    : (HAIR_STYLE_MIGRATION[hairStyle] ?? undefined)
+  return { ...(raw as Partial<AvatarData>), hairStyle: migratedHairStyle }
+}
+
 export function ProfileForm({ defaultValues }: ProfileFormProps) {
   const router = useRouter()
   const isEditing = !!defaultValues
@@ -23,7 +37,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
     (defaultValues?.ageRange as CreateProfileInput['ageRange']) ?? '',
   )
   const [avatarVal, setAvatarVal] = useState<Partial<AvatarData>>(
-    (defaultValues?.avatar as Partial<AvatarData>) ?? {},
+    sanitizeAvatar((defaultValues?.avatar as Record<string, string>) ?? {}),
   )
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -37,8 +51,8 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
     setError('')
     setLoading(true)
 
-    const hasCore = avatarVal.skinTone && avatarVal.hairColor && avatarVal.hairStyle
-    const avatar = hasCore ? avatarVal : undefined
+    const avatar =
+      avatarVal.skinTone && avatarVal.hairColor && avatarVal.hairStyle ? avatarVal : undefined
 
     const body = { name, ageRange, avatar }
     const url = isEditing ? `/api/profiles/${defaultValues.id}` : '/api/profiles'
@@ -60,19 +74,21 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
     setLoading(false)
 
     if (!res.ok) {
-      let message = 'Something went wrong'
+      let message = 'Something went wrong — please try again'
       try {
         const data = await res.json()
         if (typeof data.error === 'string') message = data.error
+        else if (res.status === 401) message = 'You must be signed in to save a profile'
+        else if (res.status === 400) message = 'Please check your inputs and try again'
       } catch {
-        if (res.status === 401) message = 'You must be signed in to save a profile'
+        /* non-JSON error body */
       }
       setError(message)
       return
     }
 
-    router.push('/profiles')
     router.refresh()
+    router.push('/profiles')
   }
 
   return (

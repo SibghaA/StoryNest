@@ -49,7 +49,7 @@ describe('HAIR_COLORS', () => {
 
 describe('HAIR_STYLES', () => {
   it('has exactly 3 options', () => {
-    expect(HAIR_STYLES).toHaveLength(3)
+    expect(HAIR_STYLES).toHaveLength(6)
   })
 
   it('every option has value and label', () => {
@@ -82,13 +82,13 @@ describe('buildAvatarDescription', () => {
     const desc = buildAvatarDescription({
       skinTone: 'tone-1',
       hairColor: 'blonde',
-      hairStyle: 'straight',
+      hairStyle: 'open',
     })
     // Should not expose internal enum keys directly
     expect(desc).not.toContain('tone-1')
     expect(desc!.toLowerCase()).toContain('light')
     expect(desc!.toLowerCase()).toContain('blonde')
-    expect(desc!.toLowerCase()).toContain('straight')
+    expect(desc!.toLowerCase()).toContain('open')
   })
 
   it('returns undefined for an empty avatar object', () => {

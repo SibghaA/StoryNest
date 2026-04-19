@@ -17,7 +17,7 @@ export default async function ProfilesPage() {
 
   return (
     <main className="mx-auto max-w-2xl p-6">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-amber-800">StoryNest</h1>
           <p className="text-sm text-gray-500">{session.user.email}</p>
@@ -26,7 +26,7 @@ export default async function ProfilesPage() {
           {profiles.length < 5 && (
             <Link
               href="/profiles/new"
-              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:border-amber-400 hover:text-amber-700"
             >
               + Add child
             </Link>
@@ -34,6 +34,15 @@ export default async function ProfilesPage() {
           <SignOutButton />
         </div>
       </div>
+
+      {profiles.length > 0 && (
+        <Link
+          href="/generate"
+          className="mb-6 flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 py-4 text-base font-semibold text-white shadow hover:bg-amber-700"
+        >
+          ✨ Generate a story
+        </Link>
+      )}
 
       <ProfileList profiles={profiles} />
     </main>

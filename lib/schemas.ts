@@ -6,6 +6,7 @@ export const generateStorySchema = z.object({
     .array(z.string().min(1).max(50))
     .length(3, { message: 'Exactly 3 keywords are required' }),
   lesson: z.string().min(1).max(120),
+  scenario: z.string().max(60).optional(),
 })
 
 export type GenerateStoryInput = z.infer<typeof generateStorySchema>
@@ -13,7 +14,7 @@ export type GenerateStoryInput = z.infer<typeof generateStorySchema>
 export const avatarSchema = z.object({
   skinTone: z.enum(['tone-1', 'tone-2', 'tone-3', 'tone-4']),
   hairColor: z.enum(['black', 'brown', 'blonde', 'red']),
-  hairStyle: z.enum(['straight', 'curly', 'wavy']),
+  hairStyle: z.enum(['open', 'short', 'pigtails', 'bun', 'braids', 'curly']),
   gender: z.enum(['boy', 'girl']).optional(),
   eyeColor: z.enum(['brown', 'blue', 'green', 'hazel']).optional(),
   eyeShape: z.enum(['round', 'almond', 'wide']).optional(),
@@ -39,6 +40,13 @@ export const updateProfileSchema = z.object({
 export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+})
+
+export const saveStorySchema = z.object({
+  profileId: z.string().min(1),
+  keywords: z.array(z.string().min(1).max(50)).length(3),
+  lesson: z.string().min(1).max(120),
+  body: z.string().min(1).max(5000),
 })
 
 export const shareStorySchema = z.object({

@@ -72,6 +72,18 @@ export function ProfileList({ profiles }: { profiles: Profile[] }) {
 
             <div className="flex gap-2">
               <Link
+                href="/generate"
+                className="rounded-lg bg-amber-500 px-3 py-1 text-sm font-medium text-white hover:bg-amber-600"
+              >
+                ✨ Story
+              </Link>
+              <Link
+                href={`/profiles/${profile.id}/stories`}
+                className="rounded-lg border border-amber-200 px-3 py-1 text-sm text-amber-700 hover:bg-amber-50"
+              >
+                📖 Library
+              </Link>
+              <Link
                 href={`/profiles/${profile.id}/edit`}
                 className="rounded-lg border border-gray-200 px-3 py-1 text-sm text-gray-600 hover:border-amber-400 hover:text-amber-700"
               >
