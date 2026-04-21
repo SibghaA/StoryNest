@@ -1,12 +1,13 @@
 import { z } from 'zod'
 
 export const generateStorySchema = z.object({
-  profileId: z.string().min(1),
+  profileIds: z.array(z.string().min(1)).min(1).max(5),
   keywords: z
     .array(z.string().min(1).max(50))
     .length(3, { message: 'Exactly 3 keywords are required' }),
   lesson: z.string().min(1).max(120),
   scenario: z.string().max(60).optional(),
+  relationship: z.string().max(50).optional(),
 })
 
 export type GenerateStoryInput = z.infer<typeof generateStorySchema>

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { getProfileStories } from '@/lib/get-profile-stories'
 import { StoryList } from '@/components/story-list'
 
 type Params = Promise<{ id: string }>
@@ -18,10 +19,7 @@ export default async function ProfileStoriesPage({ params }: { params: Params })
   })
   if (!profile) notFound()
 
-  const stories = await prisma.story.findMany({
-    where: { profileId: id },
-    orderBy: { createdAt: 'desc' },
-  })
+  const stories = await getProfileStories(id)
 
   return (
     <main className="mx-auto max-w-2xl p-6">

@@ -5,18 +5,27 @@ import { generateStorySchema } from '@/lib/schemas'
 // ── generateStorySchema ───────────────────────────────────────────────────────
 
 describe('generateStorySchema', () => {
-  it('accepts valid input', () => {
+  it('accepts valid input with a single profileId', () => {
     const result = generateStorySchema.safeParse({
-      profileId: 'profile-1',
+      profileIds: ['profile-1'],
       keywords: ['moon', 'bear', 'sleep'],
       lesson: 'sharing is caring',
     })
     expect(result.success).toBe(true)
   })
 
+  it('accepts multiple profileIds', () => {
+    const result = generateStorySchema.safeParse({
+      profileIds: ['profile-1', 'profile-2'],
+      keywords: ['moon', 'bear', 'sleep'],
+      lesson: 'sharing',
+    })
+    expect(result.success).toBe(true)
+  })
+
   it('rejects fewer than 3 keywords', () => {
     const result = generateStorySchema.safeParse({
-      profileId: 'profile-1',
+      profileIds: ['profile-1'],
       keywords: ['moon', 'bear'],
       lesson: 'sharing',
     })
@@ -25,7 +34,7 @@ describe('generateStorySchema', () => {
 
   it('rejects more than 3 keywords', () => {
     const result = generateStorySchema.safeParse({
-      profileId: 'profile-1',
+      profileIds: ['profile-1'],
       keywords: ['moon', 'bear', 'sleep', 'stars'],
       lesson: 'sharing',
     })
@@ -34,7 +43,7 @@ describe('generateStorySchema', () => {
 
   it('rejects empty keyword', () => {
     const result = generateStorySchema.safeParse({
-      profileId: 'profile-1',
+      profileIds: ['profile-1'],
       keywords: ['moon', '', 'sleep'],
       lesson: 'sharing',
     })
@@ -43,7 +52,7 @@ describe('generateStorySchema', () => {
 
   it('rejects lesson longer than 120 characters', () => {
     const result = generateStorySchema.safeParse({
-      profileId: 'profile-1',
+      profileIds: ['profile-1'],
       keywords: ['moon', 'bear', 'sleep'],
       lesson: 'a'.repeat(121),
     })
@@ -52,16 +61,16 @@ describe('generateStorySchema', () => {
 
   it('accepts lesson at exactly 120 characters', () => {
     const result = generateStorySchema.safeParse({
-      profileId: 'profile-1',
+      profileIds: ['profile-1'],
       keywords: ['moon', 'bear', 'sleep'],
       lesson: 'a'.repeat(120),
     })
     expect(result.success).toBe(true)
   })
 
-  it('rejects empty profileId', () => {
+  it('rejects empty profileIds array', () => {
     const result = generateStorySchema.safeParse({
-      profileId: '',
+      profileIds: [],
       keywords: ['moon', 'bear', 'sleep'],
       lesson: 'sharing',
     })
@@ -73,8 +82,7 @@ describe('generateStorySchema', () => {
 
 describe('buildStoryPrompt', () => {
   const base = {
-    childName: 'Zara',
-    ageRange: '1-2y',
+    children: [{ name: 'Zara', ageRange: '1-2y' }],
     keywords: ['moon', 'bear', 'sleep'],
     lesson: 'sharing is caring',
   }
@@ -102,12 +110,12 @@ describe('buildStoryPrompt', () => {
   })
 
   it('includes a human-readable age label for 0-12m', () => {
-    const prompt = buildStoryPrompt({ ...base, ageRange: '0-12m' })
+    const prompt = buildStoryPrompt({ ...base, children: [{ name: 'Zara', ageRange: '0-12m' }] })
     expect(prompt).toContain('under 1 year old')
   })
 
   it('includes a human-readable age label for 2-3y', () => {
-    const prompt = buildStoryPrompt({ ...base, ageRange: '2-3y' })
+    const prompt = buildStoryPrompt({ ...base, children: [{ name: 'Zara', ageRange: '2-3y' }] })
     expect(prompt).toContain('2 to 3 years old')
   })
 
@@ -123,7 +131,7 @@ describe('buildStoryPrompt', () => {
   })
 
   it('strips angle-bracket injection from child name', () => {
-    const prompt = buildStoryPrompt({ ...base, childName: '<script>alert(1)</script>' })
+    const prompt = buildStoryPrompt({ ...base, children: [{ name: '<script>alert(1)</script>', ageRange: '1-2y' }] })
     expect(prompt).not.toContain('<script>')
     expect(prompt).not.toContain('</script>')
   })
@@ -136,5 +144,30 @@ describe('buildStoryPrompt', () => {
   it('strips angle-bracket injection from keywords', () => {
     const prompt = buildStoryPrompt({ ...base, keywords: ['<a>', 'bear', 'sleep'] })
     expect(prompt).not.toContain('<a>')
+  })
+
+  it('includes relationship when multiple children are given', () => {
+    const prompt = buildStoryPrompt({
+      children: [{ name: 'Zara', ageRange: '1-2y' }, { name: 'Leo', ageRange: '2-3y' }],
+      keywords: ['moon', 'bear', 'sleep'],
+      lesson: 'sharing',
+      relationship: 'best friends',
+    })
+    expect(prompt).toContain('best friends')
+  })
+
+  it('omits relationship line for a single child', () => {
+    const prompt = buildStoryPrompt({ ...base, relationship: 'siblings' })
+    expect(prompt).not.toContain('siblings')
+  })
+
+  it('strips injection from relationship', () => {
+    const prompt = buildStoryPrompt({
+      children: [{ name: 'Zara', ageRange: '1-2y' }, { name: 'Leo', ageRange: '2-3y' }],
+      keywords: ['moon', 'bear', 'sleep'],
+      lesson: 'sharing',
+      relationship: '<evil>hack</evil>',
+    })
+    expect(prompt).not.toContain('<evil>')
   })
 })

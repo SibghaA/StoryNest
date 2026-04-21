@@ -1,6 +1,7 @@
 'use client'
 
 import type { AvatarData } from '@/lib/schemas'
+export { buildAvatarDescription } from '@/lib/avatar'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -79,39 +80,6 @@ export const SHOES_STYLES: { value: NonNullable<AvatarData['shoesStyle']>; label
   { value: 'sandals', label: 'Sandals' },
   { value: 'barefoot', label: 'Barefoot' },
 ]
-
-// ── Avatar description ────────────────────────────────────────────────────────
-
-export function buildAvatarDescription(avatar: Partial<AvatarData>): string | undefined {
-  const { skinTone, hairColor, hairStyle, gender, eyeColor, outfitStyle, outfitColor } = avatar
-  if (!skinTone && !hairColor && !hairStyle) return undefined
-
-  const parts: string[] = []
-
-  if (gender) parts.push(gender)
-
-  const skinLabel = SKIN_TONES.find(t => t.value === skinTone)?.label ?? skinTone
-  if (skinLabel) parts.push(`${skinLabel} skin tone`)
-
-  const hairColorLabel = HAIR_COLORS.find(c => c.value === hairColor)?.label ?? hairColor
-  const hairStyleLabel = HAIR_STYLES.find(s => s.value === hairStyle)?.label ?? hairStyle
-  if (hairColorLabel && hairStyleLabel) parts.push(`${hairColorLabel} ${hairStyleLabel} hair`)
-  else if (hairColorLabel) parts.push(`${hairColorLabel} hair`)
-  else if (hairStyleLabel) parts.push(`${hairStyleLabel} hair`)
-
-  if (eyeColor) {
-    const eyeColorLabel = EYE_COLORS.find(e => e.value === eyeColor)?.label ?? eyeColor
-    parts.push(`${eyeColorLabel} eyes`)
-  }
-
-  if (outfitStyle && outfitColor) {
-    const outfitColorLabel = OUTFIT_COLORS.find(o => o.value === outfitColor)?.label ?? outfitColor
-    const outfitStyleLabel = OUTFIT_STYLES.find(o => o.value === outfitStyle)?.label ?? outfitStyle
-    parts.push(`wearing ${outfitColorLabel} ${outfitStyleLabel} outfit`)
-  }
-
-  return parts.join(', ')
-}
 
 // ── Colour utility ────────────────────────────────────────────────────────────
 

@@ -4,6 +4,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { DeleteStoryButton } from '@/components/delete-story-button'
+import { SaveStoryButton } from '@/components/save-story-button'
+import { StoryStreamViewer } from '@/components/story-stream-viewer'
+import { StoryIllustrationsLoader } from '@/components/story-illustrations-loader'
+import { extractScenes } from '@/lib/illustrations'
 
 type Params = Promise<{ id: string }>
 
@@ -20,7 +24,19 @@ export default async function StoryPage({ params }: { params: Params }) {
   if (!story) notFound()
 
   const keywords = story.keywords as string[]
+  const coProfileIds = story.coProfileIds as string[]
   const date = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(story.createdAt)
+
+  // Resolve names for all children in the story
+  const coProfiles = coProfileIds.length > 0
+    ? await prisma.profile.findMany({
+        where: { id: { in: coProfileIds } },
+        select: { name: true },
+      })
+    : []
+  const allChildNames = [story.profile.name, ...coProfiles.map(p => p.name)].join(' & ')
+
+  const isGenerating = story.body === ''
 
   return (
     <main className="mx-auto max-w-2xl p-6">
@@ -36,9 +52,9 @@ export default async function StoryPage({ params }: { params: Params }) {
       {/* Metadata */}
       <div className="mb-6 rounded-xl bg-amber-50 p-4">
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-          <span><span className="font-medium text-gray-800">For</span> {story.profile.name}</span>
+          <span><span className="font-medium text-gray-800">For</span> {allChildNames}</span>
           <span><span className="font-medium text-gray-800">Lesson</span> {story.lesson}</span>
-          <span><span className="font-medium text-gray-800">Saved</span> {date}</span>
+          {!isGenerating && <span><span className="font-medium text-gray-800">Saved</span> {date}</span>}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {keywords.map(kw => (
@@ -49,17 +65,25 @@ export default async function StoryPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      {/* Story body */}
-      <div className="rounded-xl border border-amber-100 bg-white p-6 shadow-sm">
-        <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-800">
-          {story.body}
-        </p>
-      </div>
+      {isGenerating ? (
+        /* Story is being generated — stream it here */
+        <StoryStreamViewer storyId={id} childNames={allChildNames} />
+      ) : (
+        <>
+          {/* Story parts interleaved with illustrations — polls until all 3 images arrive */}
+          <StoryIllustrationsLoader
+            storyId={id}
+            initialUrls={story.imageUrls as string[]}
+            parts={extractScenes(story.body)}
+          />
 
-      {/* Actions */}
-      <div className="mt-6 flex justify-end">
-        <DeleteStoryButton storyId={id} profileId={story.profile.id} />
-      </div>
+          {/* Actions */}
+          <div className="mt-8 flex justify-end gap-3">
+            <SaveStoryButton storyId={id} initialSaved={story.saved} />
+            <DeleteStoryButton storyId={id} profileId={story.profile.id} />
+          </div>
+        </>
+      )}
     </main>
   )
 }

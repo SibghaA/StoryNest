@@ -91,8 +91,8 @@ describe('buildAvatarDescription', () => {
     expect(desc!.toLowerCase()).toContain('open')
   })
 
-  it('returns undefined for an empty avatar object', () => {
+  it('returns an empty string for an empty avatar object', () => {
     const desc = buildAvatarDescription({})
-    expect(desc).toBeUndefined()
+    expect(desc).toBe('')
   })
 })

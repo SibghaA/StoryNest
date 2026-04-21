@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Profile } from '@prisma/client'
 
 // ── Scenarios ─────────────────────────────────────────────────────────────────
@@ -19,6 +20,17 @@ const SCENARIOS = [
 ] as const
 
 type ScenarioId = typeof SCENARIOS[number]['id']
+
+// ── Relationship options ──────────────────────────────────────────────────────
+
+const RELATIONSHIPS = [
+  { label: 'Siblings',      emoji: '👧🧒' },
+  { label: 'Twins',         emoji: '👯' },
+  { label: 'Best Friends',  emoji: '💛' },
+  { label: 'Friends',       emoji: '🤝' },
+  { label: 'Cousins',       emoji: '🌟' },
+  { label: 'Classmates',    emoji: '🏫' },
+]
 
 // ── Lesson presets ────────────────────────────────────────────────────────────
 
@@ -52,19 +64,30 @@ interface StoryGeneratorProps {
 }
 
 export function StoryGenerator({ profiles }: StoryGeneratorProps) {
-  const [profileId, setProfileId]           = useState(profiles[0]?.id ?? '')
+  const router = useRouter()
+  const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>(
+    profiles[0] ? [profiles[0].id] : [],
+  )
   const [scenarioId, setScenarioId]         = useState<ScenarioId | ''>('')
   const [customKeywords, setCustomKeywords] = useState(['', '', ''])
   const [lesson, setLesson]                 = useState('')
-  const [storyText, setStoryText]           = useState('')
+  const [relationship, setRelationship]     = useState('')
   const [loading, setLoading]               = useState(false)
   const [error, setError]                   = useState('')
-  const [saved, setSaved]                   = useState(false)
-  const [saving, setSaving]                 = useState(false)
-  const [saveError, setSaveError]           = useState('')
 
-  const selectedProfile  = profiles.find(p => p.id === profileId)
+  const primaryProfile   = profiles.find(p => p.id === selectedProfileIds[0])
   const selectedScenario = SCENARIOS.find(s => s.id === scenarioId)
+
+  function toggleProfile(id: string) {
+    setSelectedProfileIds(prev => {
+      if (prev.includes(id)) {
+        // Always keep at least one selected
+        return prev.length > 1 ? prev.filter(x => x !== id) : prev
+      }
+      return prev.length < 5 ? [...prev, id] : prev
+    })
+    setError('')
+  }
   const isCustom         = scenarioId === 'custom'
   const keywords: string[] = selectedScenario?.keywords
     ? [...selectedScenario.keywords]
@@ -76,14 +99,14 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
 
   function handleScenarioSelect(id: ScenarioId) {
     setScenarioId(id)
-    setStoryText('')
-    setSaved(false)
-    setSaveError('')
+    setError('')
+    setError('')
   }
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault()
 
+    if (selectedProfileIds.length === 0) { setError('Please select at least one child.'); return }
     if (!scenarioId) { setError('Please choose a scenario.'); return }
     if (isCustom && customKeywords.some(k => !k.trim())) {
       setError('Please fill in all 3 keywords for your custom idea.')
@@ -92,33 +115,30 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
     if (!lesson.trim()) { setError('Please choose or type a life lesson.'); return }
 
     setError('')
-    setStoryText('')
-    setSaved(false)
-    setSaveError('')
+    setError('')
     setLoading(true)
 
     try {
       const res = await fetch('/api/stories/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileId, keywords, lesson, scenario: selectedScenario?.label }),
+        body: JSON.stringify({
+          profileIds: selectedProfileIds,
+          keywords,
+          lesson,
+          scenario: selectedScenario?.label,
+          relationship: selectedProfileIds.length > 1 && relationship ? relationship : undefined,
+        }),
       })
 
-      if (!res.ok || !res.body) {
-        const data = await res.json().catch(() => ({}))
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
         setError(typeof data.error === 'string' ? data.error : 'Story generation failed. Please try again.')
-        setLoading(false)
         return
       }
 
-      const reader  = res.body.getReader()
-      const decoder = new TextDecoder()
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        setStoryText(prev => prev + decoder.decode(value, { stream: true }))
-      }
+      router.push(`/stories/${data.data.storyId}`)
     } catch {
       setError('Story generation failed. Please try again.')
     } finally {
@@ -126,62 +146,75 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
     }
   }
 
-  async function handleSave() {
-    setSaving(true)
-    setSaveError('')
-
-    try {
-      const res = await fetch('/api/stories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profileId, keywords, lesson, body: storyText }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        setSaveError(typeof data.error === 'string' ? data.error : 'Could not save. Please try again.')
-        return
-      }
-
-      setSaved(true)
-    } catch {
-      setSaveError('Could not save. Please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   return (
     <form onSubmit={handleGenerate} className="space-y-8">
 
-      {/* ── Profile selector ── */}
+      {/* ── Profile selector (multi-select) ── */}
       <section>
-        <p className="mb-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        <p className="mb-1 text-sm font-semibold text-gray-700 uppercase tracking-wide">
           Who is this story for?
         </p>
+        <p className="mb-3 text-xs text-gray-500">Select one or more children</p>
         <div className="flex flex-wrap gap-2">
-          {profiles.map(p => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => { setProfileId(p.id); setStoryText(''); setSaved(false) }}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                profileId === p.id
-                  ? 'border-amber-500 bg-amber-50 text-amber-800'
-                  : 'border-gray-200 text-gray-600 hover:border-amber-300'
-              }`}
-            >
-              <span
-                className="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
-                style={{ backgroundColor: skinColor(p) }}
+          {profiles.map(p => {
+            const isSelected = selectedProfileIds.includes(p.id)
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => toggleProfile(p.id)}
+                className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? 'border-amber-500 bg-amber-50 text-amber-800'
+                    : 'border-gray-200 text-gray-600 hover:border-amber-300'
+                }`}
               >
-                {p.name[0].toUpperCase()}
-              </span>
-              {p.name}
-            </button>
-          ))}
+                <span
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white"
+                  style={{ backgroundColor: skinColor(p) }}
+                >
+                  {p.name[0].toUpperCase()}
+                </span>
+                {p.name}
+                {isSelected && (
+                  <span className="ml-0.5 text-amber-600">✓</span>
+                )}
+              </button>
+            )
+          })}
         </div>
+        {selectedProfileIds.length > 1 && (
+          <p className="mt-2 text-xs text-amber-700">
+            Story will feature {selectedProfileIds.length} children together
+          </p>
+        )}
       </section>
+
+      {/* ── Relationship picker (multi-child only) ── */}
+      {selectedProfileIds.length > 1 && (
+        <section>
+          <p className="mb-1 text-sm font-semibold text-gray-700 uppercase tracking-wide">
+            How do they know each other?
+          </p>
+          <p className="mb-3 text-xs text-gray-500">Optional — helps personalise the story</p>
+          <div className="flex flex-wrap gap-2">
+            {RELATIONSHIPS.map(({ label, emoji }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setRelationship(prev => prev === label ? '' : label)}
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                  relationship === label
+                    ? 'border-amber-500 bg-amber-50 text-amber-800'
+                    : 'border-gray-200 text-gray-600 hover:border-amber-300'
+                }`}
+              >
+                <span>{emoji}</span> {label}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Scenario picker ── */}
       <section>
@@ -238,7 +271,7 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
       {/* ── Lesson picker ── */}
       <section>
         <p className="mb-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          What will {selectedProfile?.name ?? 'your child'} learn?
+          What will {selectedProfileIds.length > 1 ? 'the children' : (primaryProfile?.name ?? 'your child')} learn?
         </p>
         <div className="mb-2 flex flex-wrap gap-2">
           {LESSON_PRESETS.map(({ label, emoji }) => (
@@ -284,57 +317,9 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
         disabled={loading}
         className="w-full rounded-xl bg-amber-600 py-3.5 text-sm font-semibold text-white shadow hover:bg-amber-700 disabled:opacity-50"
       >
-        {loading ? 'Writing the story…' : `✨ Generate story for ${selectedProfile?.name ?? 'your child'}`}
+        {loading ? 'Writing the story…' : `✨ Generate story for ${selectedProfileIds.length > 1 ? profiles.filter(p => selectedProfileIds.includes(p.id)).map(p => p.name).join(' & ') : (primaryProfile?.name ?? 'your child')}`}
       </button>
 
-      {/* ── Story output ── */}
-      {(loading || storyText) && (
-        <section className="rounded-xl border border-amber-100 bg-amber-50 p-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-700">
-            {loading && !storyText ? 'Your story is being written…' : `A story for ${selectedProfile?.name ?? 'your child'}`}
-          </p>
-
-          {/* Skeleton */}
-          {loading && !storyText && (
-            <div className="space-y-2.5">
-              {[0.75, 1, 0.85, 1, 0.65, 1, 0.9].map((w, i) => (
-                <div
-                  key={i}
-                  className="h-3.5 animate-pulse rounded bg-amber-200"
-                  style={{ width: `${w * 100}%` }}
-                />
-              ))}
-            </div>
-          )}
-
-          {storyText && (
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
-              {storyText}
-            </p>
-          )}
-        </section>
-      )}
-
-      {/* ── Save button ── */}
-      {storyText && !loading && (
-        <div className="flex flex-col items-center gap-2">
-          {saved ? (
-            <div className="flex items-center gap-2 rounded-xl bg-green-50 px-5 py-3 text-sm font-medium text-green-700">
-              <span>✓</span> Story saved to {selectedProfile?.name}&apos;s library
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="w-full rounded-xl border-2 border-amber-500 py-3 text-sm font-semibold text-amber-700 hover:bg-amber-50 disabled:opacity-50"
-            >
-              {saving ? 'Saving…' : '🔖 Save this story'}
-            </button>
-          )}
-          {saveError && <p className="text-xs text-red-600">{saveError}</p>}
-        </div>
-      )}
 
     </form>
   )

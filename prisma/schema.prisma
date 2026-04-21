@@ -36,12 +36,16 @@ model Profile {
 }
 
 model Story {
-  id        String   @id @default(cuid())
-  keywords  Json
-  lesson    String
-  body      String
-  imageUrls Json     @default("[]")
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  keywords     Json
+  lesson       String
+  body         String
+  imageUrls    Json     @default("[]")
+  coProfileIds Json     @default("[]")
+  scenario     String?
+  relationship String?
+  saved        Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
   profileId    String
   profile      Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
