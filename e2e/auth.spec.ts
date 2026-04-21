@@ -44,4 +44,26 @@ test.describe('Authentication flow', () => {
     await expect(page.getByLabel(/password/i)).toBeVisible()
     await expect(page.getByRole('button', { name: /register|sign up|create/i })).toBeVisible()
   })
+
+  test('registers with valid credentials and lands on /profiles', async ({ page }) => {
+    const email = `reg-${Date.now()}@test.com`
+    await page.goto('/auth/register')
+    await page.getByLabel(/email/i).fill(email)
+    await page.getByLabel(/password/i).fill('Password123!')
+    await page.getByRole('button', { name: /create account/i }).click()
+    await expect(page).toHaveURL('/profiles', { timeout: 10000 })
+  })
+
+  test('login with valid credentials redirects to /profiles', async ({ page }) => {
+    const email = `login-${Date.now()}@test.com`
+    // Register first so the user exists
+    await page.request.post('/api/auth/register', {
+      data: { email, password: 'Password123!' },
+    })
+    await page.goto('/auth/login')
+    await page.getByLabel(/email/i).fill(email)
+    await page.getByLabel(/password/i).fill('Password123!')
+    await page.getByRole('button', { name: /sign in/i }).click()
+    await expect(page).toHaveURL('/profiles', { timeout: 10000 })
+  })
 })

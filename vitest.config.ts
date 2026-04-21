@@ -23,8 +23,8 @@ export default defineConfig({
         'app/api/auth/**',
       ],
       thresholds: {
-        lines: 60,
-        statements: 60,
+        lines: 70,
+        statements: 70,
         functions: 75,
         branches: 70,
       },

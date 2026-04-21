@@ -38,6 +38,7 @@ coverage/
 playwright-report/
 test-results/
 .playwright-mcp/
+e2e/.auth-*.json
 
 # machine-local Claude Code overrides
 .claude/settings.local.json

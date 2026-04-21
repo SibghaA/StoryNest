@@ -9,6 +9,7 @@ code in this repository.
 > Security posture (threat model + OWASP top 10 mapping): @docs/security.md
 > Definition of Done (what "merged" means): @docs/definition-of-done.md
 > AI-disclosure template for PRs: @docs/ai-disclosure-template.md
+> Auto-memory index (persistent project context): @memory/MEMORY.md
 
 StoryNest is a web app that lets parents generate personalized, illustrated
 bedtime stories for babies and toddlers (ages 0–3). Parents enter three

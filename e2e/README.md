@@ -67,6 +67,7 @@ npx playwright test e2e/auth.spec.ts
 
 ## Test files
 
-| File               | What it covers                                          |
-| ------------------ | ------------------------------------------------------- |
-| `e2e/auth.spec.ts` | Auth guards, login page, bad credentials, register page |
+| File                   | What it covers                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| `e2e/auth.spec.ts`     | Auth guards, login page, bad credentials, register page, happy-path register and login |
+| `e2e/generate.spec.ts` | Generate form layout, lesson preset chips, scenario selection, validation edge cases   |

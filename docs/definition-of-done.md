@@ -1,7 +1,6 @@
 # Definition of Done
 
-A change is "Done" only when every box below is ticked. No exceptions for
-"I'll fix it in the next PR" — that PR never gets written.
+A change is "Done" only when every box below is ticked.
 
 ## Code
 
