@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "node scripts/prepare-prisma-for-postgres.mjs && prisma generate --schema=prisma/schema.postgresql.prisma && prisma db push --accept-data-loss --skip-generate --schema=prisma/schema.postgresql.prisma && next build",
+  "buildCommand": "node scripts/prepare-prisma-for-postgres.mjs && prisma generate --schema=prisma/schema.postgresql.prisma && bash -c 'if [ -n \"$DATABASE_URL\" ]; then prisma db push --accept-data-loss --skip-generate --schema=prisma/schema.postgresql.prisma; else echo \"[build] DATABASE_URL not set — skipping prisma db push (app will 500 on DB-backed routes until env is configured)\"; fi' && next build",
   "installCommand": "npm ci --no-audit --no-fund",
   "regions": ["iad1"],
   "github": {
