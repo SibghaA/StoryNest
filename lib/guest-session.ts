@@ -1,11 +1,11 @@
 export const GUEST_COOKIE_NAME = 'storynest_guest_used'
 export const GUEST_COOKIE_VALUE = '1'
-const MAX_AGE_24H = 60 * 60 * 24
+export const GUEST_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24
 
 export interface GuestUsedCookie {
-  name: string
-  value: string
-  httpOnly: boolean
+  name: typeof GUEST_COOKIE_NAME
+  value: typeof GUEST_COOKIE_VALUE
+  httpOnly: true
   sameSite: 'lax'
   path: '/'
   maxAge: number
@@ -23,7 +23,7 @@ export function buildGuestUsedCookie(opts: { secure?: boolean } = {}): GuestUsed
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
-    maxAge: MAX_AGE_24H,
+    maxAge: GUEST_COOKIE_MAX_AGE_SECONDS,
     secure: opts.secure ?? false,
   }
 }
