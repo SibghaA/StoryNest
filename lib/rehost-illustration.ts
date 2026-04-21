@@ -1,3 +1,7 @@
+// TODO(security): wiring PR must add an SSRF hostname allowlist on srcUrl
+// (e.g. fal.media only) before this is called from a route handler. The
+// helper is intentionally framework-free; the allowlist belongs at the
+// call site where the hostname policy lives.
 import { put as vercelBlobPut } from '@vercel/blob'
 
 type PutFn = (

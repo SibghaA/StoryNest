@@ -21,12 +21,10 @@ describe('rehostToBlob', () => {
     const put = vi.fn().mockResolvedValue({ url: fakeBlobUrl })
     const fetcher = vi.fn().mockResolvedValue(okResponse('pngdata', 'image/png'))
 
-    const out = await rehostToBlob(
-      'https://fal.media/cdn/1234.png',
-      'story_abc',
-      0,
-      { fetcher, put },
-    )
+    const out = await rehostToBlob('https://fal.media/cdn/1234.png', 'story_abc', 0, {
+      fetcher,
+      put,
+    })
 
     expect(out).toBe(fakeBlobUrl)
     expect(fetcher).toHaveBeenCalledWith('https://fal.media/cdn/1234.png')
@@ -56,12 +54,10 @@ describe('rehostToBlob', () => {
     const put = vi.fn()
     const fetcher = vi.fn().mockRejectedValue(new Error('ECONNRESET'))
 
-    const out = await rehostToBlob(
-      'https://fal.media/original.png',
-      'story_abc',
-      1,
-      { fetcher, put },
-    )
+    const out = await rehostToBlob('https://fal.media/original.png', 'story_abc', 1, {
+      fetcher,
+      put,
+    })
 
     expect(out).toBe('https://fal.media/original.png')
     expect(put).not.toHaveBeenCalled()
