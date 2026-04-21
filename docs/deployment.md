@@ -2,69 +2,57 @@
 
 Target: Vercel, production Postgres, preview deploys per PR.
 
+## How the two database providers coexist
+
+- `prisma/schema.prisma` is the canonical schema; provider is `sqlite`. Used
+  for `npm run dev`, every Vitest suite, and every Playwright E2E.
+- `prisma/schema.postgresql.prisma` is generated at Vercel build time by
+  `scripts/prepare-prisma-for-postgres.mjs` — it is identical except
+  `provider = "postgresql"`. Gitignored; never hand-edited.
+- Vercel `buildCommand` (see `vercel.json`) runs the script, generates a
+  Prisma client against the Postgres schema, syncs the DB, then builds Next.
+
+This keeps unit tests fast (SQLite files, no containers) while prod gets a
+real Postgres. Schema drift is impossible — the Postgres file is derived
+from the SQLite one on every build.
+
 ## First-time setup
 
 ### 1. Provision Postgres
 
-Pick one. Neon is the default recommendation because Vercel ships a first-class
-integration and the free tier is generous.
+Pick one. The free tiers on each are enough for this project:
 
-- **Neon** — https://neon.tech → create project → copy the pooled connection string.
-- **Vercel Postgres** — Vercel dashboard → Storage → Create → Postgres.
-- **Supabase** — https://supabase.com → project settings → database → connection string (direct, not pooler, for migrations).
+- **Neon** — https://neon.tech → create project → copy the connection string.
+- **Vercel Postgres** — Vercel dashboard → Storage → Create → Postgres
+  (auto-injects `DATABASE_URL`).
+- **Supabase** — https://supabase.com → Settings → Database → connection string.
 
-Capture two URLs:
+Capture the connection string as `DATABASE_URL`.
 
-- `DATABASE_URL` — pooled connection, used at runtime.
-- `DIRECT_URL` — direct (non-pooled) connection, used only by `prisma migrate`.
+### 2. Wire up Vercel env vars
 
-### 2. Switch the Prisma provider
+In the Vercel dashboard, set these for **Production** and **Preview**:
 
-```diff
- datasource db {
--  provider = "sqlite"
--  url      = env("DATABASE_URL")
-+  provider  = "postgresql"
-+  url       = env("DATABASE_URL")
-+  directUrl = env("DIRECT_URL")
- }
-```
+| Key                     | Source                                   |
+| ----------------------- | ---------------------------------------- |
+| `DATABASE_URL`          | Postgres provider                        |
+| `NEXTAUTH_URL`          | e.g. `https://story-nest-two.vercel.app` |
+| `NEXTAUTH_SECRET`       | `openssl rand -base64 32`                |
+| `ANTHROPIC_API_KEY`     | https://console.anthropic.com            |
+| `FAL_AI_KEY`            | https://fal.ai/dashboard                 |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Storage → Blob                    |
 
-Then:
+Or via CLI:
 
 ```bash
-rm -rf prisma/migrations          # legacy SQLite migrations do not apply to PG
-npx prisma migrate dev --name init  # creates the first PG migration
+vercel env add DATABASE_URL production
+vercel env add NEXTAUTH_SECRET production
+# ...etc
 ```
 
-**Local dev alongside this:** run Postgres locally with `docker compose up -d`
-(see `docker-compose.yml`). The local DB lives in a Docker volume and matches
-the Prisma schema exactly.
+### 3. Wire up GitHub Actions secrets
 
-### 3. Wire up Vercel
-
-```bash
-npm i -g vercel
-vercel link         # creates .vercel/project.json — do not commit it
-vercel env pull     # populates .env.local from Vercel project env
-```
-
-Then in the Vercel dashboard, set these project env vars for **Production**
-and **Preview**:
-
-| Key                     | Source                                 |
-| ----------------------- | -------------------------------------- |
-| `DATABASE_URL`          | Postgres provider                      |
-| `DIRECT_URL`            | Postgres provider (direct, non-pooled) |
-| `NEXTAUTH_URL`          | e.g. `https://storynest.vercel.app`    |
-| `NEXTAUTH_SECRET`       | `openssl rand -base64 32`              |
-| `ANTHROPIC_API_KEY`     | https://console.anthropic.com          |
-| `FAL_AI_KEY`            | https://fal.ai/dashboard               |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Storage → Blob                  |
-
-### 4. Wire up GitHub Actions secrets
-
-In the GitHub repo settings → Secrets and variables → Actions:
+GitHub repo → Settings → Secrets and variables → Actions:
 
 | Secret              | Used by                                                      |
 | ------------------- | ------------------------------------------------------------ |
@@ -75,24 +63,39 @@ In the GitHub repo settings → Secrets and variables → Actions:
 
 ## Deploy cadence
 
-- **Every PR** → `deploy.yml` → Vercel preview deploy → URL posted as a PR comment.
-- **Every merge to `main`** → `deploy.yml` → Vercel production deploy.
-- Migrations run automatically because `vercel build` invokes `prisma generate`
-  and `prisma migrate deploy` via the `postinstall` / `build` hook
-  (see `package.json::scripts.build`).
+- **Every PR** → Vercel preview deploy → URL posted as a PR comment.
+- **Every merge to `main`** → Vercel production deploy.
+- Schema sync runs automatically in `buildCommand` via
+  `prisma db push --accept-data-loss --skip-generate`. This is safe for
+  StoryNest today because we have no production data yet. **Before the
+  first real user signs up**, swap `db push` for a proper
+  `prisma migrate deploy` wired to committed migration files.
 
 ## Rollback
 
 Vercel keeps every deploy. To roll back: Vercel dashboard → Deployments →
-click the last good deploy → "Promote to Production". Migrations are
-forward-only; if a migration is the problem, write a compensating migration
-rather than rolling back the DB.
+click the last good deploy → "Promote to Production". Schema changes are
+forward-only at the moment; if a schema change is the problem, write a
+compensating change to `schema.prisma` rather than rolling the DB back.
 
-## Local → production parity
+## Local development
 
-- Local dev uses Postgres via Docker, not SQLite. The old SQLite setup is
-  gone — keeping two databases in sync across schema changes cost more than
-  running a container.
-- `.env.example` documents every env var that prod expects.
-- The CI pipeline (`.github/workflows/ci.yml`) runs against the same Node
-  version (20) that Vercel uses.
+Dev still runs on SQLite — fastest feedback loop:
+
+```bash
+cp .env.example .env.local
+# edit .env.local, set DATABASE_URL=file:./prisma/dev.db
+npx prisma db push
+npm run dev
+```
+
+If you want Postgres locally too (e.g. to debug a Postgres-specific issue),
+`docker-compose.yml` spins up Postgres 16 on port 5432. Point
+`DATABASE_URL` at `postgresql://storynest:storynest@localhost:5432/storynest`
+and run the same prepare script:
+
+```bash
+docker compose up -d
+node scripts/prepare-prisma-for-postgres.mjs
+npx prisma db push --schema=prisma/schema.postgresql.prisma
+```
