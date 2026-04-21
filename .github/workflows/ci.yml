@@ -83,8 +83,8 @@ jobs:
       - name: Start dev server
         run: |
           npm run build
-          npm run start &
-          npx wait-on http://localhost:3000 --timeout 60000
+          PORT=3001 NEXTAUTH_URL=http://localhost:3001 npm run start &
+          npx wait-on http://localhost:3001 --timeout 60000
       - run: npx playwright test
       - name: Upload Playwright report
         if: always()

@@ -67,15 +67,6 @@ npx playwright test e2e/auth.spec.ts
 
 ## Test files
 
-| File                   | What it covers                                                     |
-| ---------------------- | ------------------------------------------------------------------ |
-| `e2e/auth.spec.ts`     | Auth guards, login page, bad credentials, register page            |
-| `e2e/generate.spec.ts` | Story generation form: login → form validation → presets → counter |
-
-## How generate.spec.ts works
-
-1. `beforeEach` seeds a test user + child profile directly into `prisma/dev.db`
-2. Each test logs in via the UI (`loginAs`) and navigates to `/generate`
-3. `afterEach` deletes the seeded data and disconnects Prisma
-
-This approach tests the real login + session flow without mocking NextAuth.
+| File               | What it covers                                          |
+| ------------------ | ------------------------------------------------------- |
+| `e2e/auth.spec.ts` | Auth guards, login page, bad credentials, register page |
