@@ -1,0 +1,51 @@
+# Gitleaks config for StoryNest
+# Docs: https://github.com/gitleaks/gitleaks#configuration
+#
+# Default rules are inherited. We add project-specific allowlists and
+# rules for the API keys this project actually uses.
+
+title = "StoryNest gitleaks config"
+
+[extend]
+useDefault = true
+
+# ── Project-specific rules ────────────────────────────────────────────────────
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API key"
+regex = '''sk-ant-[a-zA-Z0-9_-]{32,}'''
+tags = ["key", "anthropic"]
+
+[[rules]]
+id = "fal-ai-key"
+description = "fal.ai API key"
+regex = '''[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}:[a-f0-9]{32,}'''
+tags = ["key", "fal.ai"]
+
+[[rules]]
+id = "vercel-blob-token"
+description = "Vercel Blob read/write token"
+regex = '''vercel_blob_rw_[A-Za-z0-9_-]{20,}'''
+tags = ["key", "vercel"]
+
+# ── Allowlist ────────────────────────────────────────────────────────────────
+# Do not scan these paths (still scanned by other tools, just not gitleaks).
+
+[allowlist]
+description = "Ignore fixtures, lockfiles, and placeholder env files"
+paths = [
+  '''package-lock\.json''',
+  '''\.env\.example$''',
+  '''docs/ai-disclosure-template\.md$''',
+  '''docs/security\.md$''',
+  '''CLAUDE\.md$''',
+  '''\.claude/hooks/block-protected-files\.sh$''',
+]
+
+# Placeholder values in docs that shouldn't trigger.
+regexes = [
+  '''YOUR_[A-Z_]+_HERE''',
+  '''<your-[a-z-]+>''',
+  '''dev-secret''',
+]

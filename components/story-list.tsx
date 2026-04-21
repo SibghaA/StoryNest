@@ -12,7 +12,7 @@ interface Story {
   createdAt: Date
 }
 
-export function StoryList({ stories, profileId }: { stories: Story[]; profileId: string }) {
+export function StoryList({ stories }: { stories: Story[]; profileId: string }) {
   const router = useRouter()
   const [deleting, setDeleting] = useState<string | null>(null)
 

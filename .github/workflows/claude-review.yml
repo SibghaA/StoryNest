@@ -1,0 +1,44 @@
+name: Claude PR review
+
+# Runs Claude Code against every PR as an AI reviewer, mirroring what the
+# `security-reviewer` sub-agent does locally. Posts a comment with the diff
+# review before a human reviewer picks it up.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  claude-review:
+    name: Claude reviews the diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are reviewing this pull request on behalf of the StoryNest team.
+
+            1. Read CLAUDE.md, docs/security.md, and docs/definition-of-done.md so
+               you apply the project's actual conventions — not generic advice.
+            2. Read the diff with `git diff origin/main...HEAD`.
+            3. Invoke the `security-reviewer` sub-agent (it lives in
+               .claude/agents/security-reviewer.md) and include its verdict in
+               your review comment.
+            4. Post a single review comment on the PR using the C.L.E.A.R.
+               framework (Clarity, Logic, Edge cases, Assumptions, Risk).
+            5. Flag any violation of the Definition of Done, especially missing
+               `{ data, error }` return shape, un-sanitized prompt input, or
+               routes that do not scope queries to `session.user.id`.
+
+            Do not approve. A human reviewer gives the final approval.

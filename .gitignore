@@ -32,3 +32,13 @@ Thumbs.db
 
 # logs
 npm-debug.log*
+
+# test + coverage artifacts
+coverage/
+playwright-report/
+test-results/
+.playwright-mcp/
+
+# machine-local Claude Code overrides
+.claude/settings.local.json
+

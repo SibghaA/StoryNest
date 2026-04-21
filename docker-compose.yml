@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: storynest-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: storynest
+      POSTGRES_PASSWORD: storynest
+      POSTGRES_DB: storynest
+    ports:
+      - '5432:5432'
+    volumes:
+      - storynest-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U storynest']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  storynest-pgdata:
