@@ -8,22 +8,33 @@ type PutFn = (
 
 type FetcherFn = (url: string) => Promise<Response>
 
-interface Deps {
+export interface RehostDeps {
   fetcher?: FetcherFn
   put?: PutFn
 }
 
 const VERCEL_BLOB_HOST = 'blob.vercel-storage.com'
+const DEFAULT_CONTENT_TYPE = 'image/png'
+
+const EXT_BY_CONTENT_TYPE: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/png': 'png',
+}
+
+function extensionFor(contentType: string): string {
+  return EXT_BY_CONTENT_TYPE[contentType] ?? 'png'
+}
 
 export async function rehostToBlob(
   srcUrl: string,
   storyId: string,
   sceneIndex: number,
-  deps: Deps = {},
+  deps: RehostDeps = {},
 ): Promise<string> {
-  if (srcUrl.includes(VERCEL_BLOB_HOST)) {
-    return srcUrl
-  }
+  if (srcUrl.includes(VERCEL_BLOB_HOST)) return srcUrl
 
   const fetcher = deps.fetcher ?? ((url: string) => fetch(url))
   const put = deps.put ?? (vercelBlobPut as unknown as PutFn)
@@ -33,26 +44,16 @@ export async function rehostToBlob(
   try {
     const res = await fetcher(srcUrl)
     if (!res.ok) return srcUrl
-    contentType = res.headers.get('content-type') ?? 'image/png'
+    contentType = res.headers.get('content-type') ?? DEFAULT_CONTENT_TYPE
     body = await res.arrayBuffer()
   } catch {
     return srcUrl
   }
 
-  const ext =
-    contentType === 'image/jpeg' || contentType === 'image/jpg'
-      ? 'jpg'
-      : contentType === 'image/webp'
-      ? 'webp'
-      : contentType === 'image/gif'
-      ? 'gif'
-      : 'png'
+  const pathname = `illustrations/${storyId}/${sceneIndex}.${extensionFor(contentType)}`
 
   try {
-    const { url } = await put(`illustrations/${storyId}/${sceneIndex}.${ext}`, body, {
-      access: 'public',
-      contentType,
-    })
+    const { url } = await put(pathname, body, { access: 'public', contentType })
     return url
   } catch {
     return srcUrl
