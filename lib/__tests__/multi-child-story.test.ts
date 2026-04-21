@@ -175,14 +175,20 @@ const mockSession = (userId: string) =>
 
 beforeAll(() => {
   process.env.ANTHROPIC_API_KEY = 'test-key'
-  try { unlinkSync(TEST_DB_PATH) } catch { /* ok */ }
+  try {
+    unlinkSync(TEST_DB_PATH)
+  } catch {
+    /* ok */
+  }
   execSync('npx prisma db push --skip-generate', {
     env: { ...process.env, DATABASE_URL: TEST_DB_URL },
     stdio: 'pipe',
   })
 })
 
-afterAll(async () => { await testPrisma.$disconnect() })
+afterAll(async () => {
+  await testPrisma.$disconnect()
+})
 
 let profileId1: string
 let profileId2: string

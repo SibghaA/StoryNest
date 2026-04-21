@@ -52,26 +52,26 @@ vercel env pull     # populates .env.local from Vercel project env
 Then in the Vercel dashboard, set these project env vars for **Production**
 and **Preview**:
 
-| Key | Source |
-|---|---|
-| `DATABASE_URL` | Postgres provider |
-| `DIRECT_URL` | Postgres provider (direct, non-pooled) |
-| `NEXTAUTH_URL` | e.g. `https://storynest.vercel.app` |
-| `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
-| `ANTHROPIC_API_KEY` | https://console.anthropic.com |
-| `FAL_AI_KEY` | https://fal.ai/dashboard |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Storage → Blob |
+| Key                     | Source                                 |
+| ----------------------- | -------------------------------------- |
+| `DATABASE_URL`          | Postgres provider                      |
+| `DIRECT_URL`            | Postgres provider (direct, non-pooled) |
+| `NEXTAUTH_URL`          | e.g. `https://storynest.vercel.app`    |
+| `NEXTAUTH_SECRET`       | `openssl rand -base64 32`              |
+| `ANTHROPIC_API_KEY`     | https://console.anthropic.com          |
+| `FAL_AI_KEY`            | https://fal.ai/dashboard               |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Storage → Blob                  |
 
 ### 4. Wire up GitHub Actions secrets
 
 In the GitHub repo settings → Secrets and variables → Actions:
 
-| Secret | Used by |
-|---|---|
-| `VERCEL_TOKEN` | `.github/workflows/deploy.yml` |
-| `VERCEL_ORG_ID` | `.github/workflows/deploy.yml` (from `.vercel/project.json`) |
+| Secret              | Used by                                                      |
+| ------------------- | ------------------------------------------------------------ |
+| `VERCEL_TOKEN`      | `.github/workflows/deploy.yml`                               |
+| `VERCEL_ORG_ID`     | `.github/workflows/deploy.yml` (from `.vercel/project.json`) |
 | `VERCEL_PROJECT_ID` | `.github/workflows/deploy.yml` (from `.vercel/project.json`) |
-| `ANTHROPIC_API_KEY` | `.github/workflows/claude-review.yml` |
+| `ANTHROPIC_API_KEY` | `.github/workflows/claude-review.yml`                        |
 
 ## Deploy cadence
 

@@ -9,6 +9,7 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
 ## Planning (2026-04-06)
 
 ### Goals
+
 1. Illustrations pipeline (fal.ai `flux/schnell`, up to 3 per story, non-blocking).
 2. Story library per profile + save/delete.
 3. Multi-child stories with relationship field.
@@ -19,27 +20,30 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
 8. Parallel development via git worktrees (guest flow + Blob re-hosting).
 
 ### Committed issues
-| # | Title | Size | Owner |
-|---|---|---|---|
-| 8 | Illustration pipeline + scene extractor | M | Sibgha |
-| 9 | Save / browse / delete story library | M | Sibgha |
-| 10 | Sharing stories (GET + POST) — TDD | M | Sibgha |
-| 11 | Multi-child stories (profileIds: 1–5 + relationship) | M | Sibgha |
-| 12 | CI pipeline — all 8 stages | L | Sibgha |
-| 13 | Security: Gitleaks + `security-reviewer` agent + OWASP in CLAUDE.md | M | Sibgha |
-| 14 | Hooks: PreToolUse (protected files) + Stop (typecheck + tests) | S | Sibgha |
-| 15 | `.mcp.json` + second skill (`create-pr`) + `add-feature` v2 | S | Sibgha |
-| 16 | Postgres migration + Vercel production deploy | M | Sibgha |
-| 17 | Guest flow (parallel worktree) — TDD | M | Sibgha |
-| 18 | Vercel Blob re-hosting (parallel worktree) — TDD | M | Sibgha |
-| 19 | Writer/reviewer PRs x2 with C.L.E.A.R. + AI disclosure | S | Sibgha |
-| 20 | Blog post + video demo | M | Sibgha |
+
+| #   | Title                                                               | Size | Owner  |
+| --- | ------------------------------------------------------------------- | ---- | ------ |
+| 8   | Illustration pipeline + scene extractor                             | M    | Sibgha |
+| 9   | Save / browse / delete story library                                | M    | Sibgha |
+| 10  | Sharing stories (GET + POST) — TDD                                  | M    | Sibgha |
+| 11  | Multi-child stories (profileIds: 1–5 + relationship)                | M    | Sibgha |
+| 12  | CI pipeline — all 8 stages                                          | L    | Sibgha |
+| 13  | Security: Gitleaks + `security-reviewer` agent + OWASP in CLAUDE.md | M    | Sibgha |
+| 14  | Hooks: PreToolUse (protected files) + Stop (typecheck + tests)      | S    | Sibgha |
+| 15  | `.mcp.json` + second skill (`create-pr`) + `add-feature` v2         | S    | Sibgha |
+| 16  | Postgres migration + Vercel production deploy                       | M    | Sibgha |
+| 17  | Guest flow (parallel worktree) — TDD                                | M    | Sibgha |
+| 18  | Vercel Blob re-hosting (parallel worktree) — TDD                    | M    | Sibgha |
+| 19  | Writer/reviewer PRs x2 with C.L.E.A.R. + AI disclosure              | S    | Sibgha |
+| 20  | Blog post + video demo                                              | M    | Sibgha |
 
 ### Out of scope
+
 - Google OAuth (stack documents it; backlog item for v2).
 - Audio narration (PRD non-goal for v1).
 
 ### Risks
+
 - Postgres migration mid-sprint may destabilize tests (SQLite-specific assumptions).
 - fal.ai rate limits are unknown (PRD open question #1); plan is to ship with
   per-scene error fallback and observe.
@@ -49,6 +53,7 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
 ## Retrospective (2026-04-20)
 
 ### What went well
+
 - **Sharing stories was shipped on rails.** The TDD commit pattern
   (`eaa09851` → `72f5027c` → `2fb0a5eb` → `783ae653`) made the git log
   readable as a story: here's what we promised, here's the GET, here's the
@@ -66,6 +71,7 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
   the confusion of "why are my tests green before I've implemented anything".
 
 ### What hurt
+
 - **ESLint 10 ambush.** Worked locally, broke CI. Cost an hour to diagnose
   that `next lint` invokes ESLint with removed options. Pinned to ESLint 8.
 - **Generate E2E spec drifted.** The UI added a scenario picker mid-sprint
@@ -76,6 +82,7 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
   Should have landed the migration at the start of the sprint, not the end.
 
 ### What we're taking forward
+
 - **Land infrastructure first.** CI, lint, coverage thresholds, and the DB
   migration should be first-week work. Sprint 2 did the opposite and paid.
 - **Every new UI feature ships with its E2E test in the same PR.** No more
@@ -85,6 +92,7 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
   which kept reviewers honest.
 
 ### Velocity
+
 - Planned: 13 issues
 - Completed: 13. Two (#16 Postgres, #20 blog/video) slipped to the final day
   but landed.
@@ -93,15 +101,15 @@ library, sharing, multi-child, and the full Claude Code / CI / security stack.
 
 ## Where to find the evidence
 
-| Deliverable | Location |
-|---|---|
-| Skills | `.claude/skills/{add-feature.md, add-feature-v1.md, create-pr.md}` |
-| Agent | `.claude/agents/security-reviewer.md` |
-| Hooks | `.claude/settings.json` + `.claude/hooks/` |
-| MCP | `.mcp.json` |
-| CI | `.github/workflows/{ci,claude-review,deploy}.yml` |
-| Security | `.gitleaks.toml`, `docs/security.md`, `docs/definition-of-done.md` |
-| Writer/Reviewer | `.claude/skills/create-pr.md`, PR history for sprint 2 |
-| Worktrees | `docs/worktrees.md` + the `feat/guest-flow` and `feat/blob-rehost` branches |
-| Reflections | `reflections.md`, `retrospective.md` |
-| Blog / video | `docs/blog-post.md`, `docs/video-script.md` |
+| Deliverable     | Location                                                                    |
+| --------------- | --------------------------------------------------------------------------- |
+| Skills          | `.claude/skills/{add-feature.md, add-feature-v1.md, create-pr.md}`          |
+| Agent           | `.claude/agents/security-reviewer.md`                                       |
+| Hooks           | `.claude/settings.json` + `.claude/hooks/`                                  |
+| MCP             | `.mcp.json`                                                                 |
+| CI              | `.github/workflows/{ci,claude-review,deploy}.yml`                           |
+| Security        | `.gitleaks.toml`, `docs/security.md`, `docs/definition-of-done.md`          |
+| Writer/Reviewer | `.claude/skills/create-pr.md`, PR history for sprint 2                      |
+| Worktrees       | `docs/worktrees.md` + the `feat/guest-flow` and `feat/blob-rehost` branches |
+| Reflections     | `reflections.md`, `retrospective.md`                                        |
+| Blog / video    | `docs/blog-post.md`, `docs/video-script.md`                                 |

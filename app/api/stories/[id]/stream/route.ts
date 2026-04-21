@@ -35,9 +35,10 @@ export async function GET(_req: Request, { params }: { params: Params }) {
 
   // Fetch any co-profiles so all children appear in the prompt
   const coProfileIds = story.coProfileIds as string[]
-  const coProfiles = coProfileIds.length > 0
-    ? await prisma.profile.findMany({ where: { id: { in: coProfileIds } } })
-    : []
+  const coProfiles =
+    coProfileIds.length > 0
+      ? await prisma.profile.findMany({ where: { id: { in: coProfileIds } } })
+      : []
 
   const allProfiles = [story.profile, ...coProfiles]
 
@@ -75,10 +76,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
 
         try {
           for await (const chunk of claudeStream) {
-            if (
-              chunk.type === 'content_block_delta' &&
-              chunk.delta.type === 'text_delta'
-            ) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
               fullText += chunk.delta.text
               controller.enqueue(encoder.encode(chunk.delta.text))
             }

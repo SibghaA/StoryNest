@@ -54,11 +54,13 @@ submission from "I built an AI app".
 
 3. **Hooks (40s)** — open `.claude/settings.json` and
    `.claude/hooks/block-protected-files.sh`. Demo:
+
    ```
    echo '{"tool_input":{"file_path":"/repo/.env.local"}}' \
      | bash .claude/hooks/block-protected-files.sh
    # Blocked: /repo/.env.local is a protected file.
    ```
+
    Say: "Blocks the agent from editing `.env.local` or
    `prisma/migrations/*`. Exit 2 feeds the error back to Claude. Stop hook
    runs typecheck + tests every turn."
@@ -79,8 +81,8 @@ submission from "I built an AI app".
    - The PR body's C.L.E.A.R. block.
    - The AI-disclosure block.
    - The `claude-review.yml` comment with the security-reviewer verdict.
-   Say: "Writer session opens the PR. Cold reviewer session posts the
-   C.L.E.A.R. review. Human approves after reading both."
+     Say: "Writer session opens the PR. Cold reviewer session posts the
+     C.L.E.A.R. review. Human approves after reading both."
 
 ## 7:30–8:00 — Deployment + CI (30s)
 
@@ -107,7 +109,7 @@ Claude PR review — all green. Ship it."
 
 ## Delivery notes
 
-- Talk about the *choices*, not the features. "Why split generate from
+- Talk about the _choices_, not the features. "Why split generate from
   stream" is a better line than "we have two routes".
 - Pause after each section. Edit later.
 - Don't narrate what the viewer can already see on screen. Narrate the

@@ -39,21 +39,27 @@ comments only for specific line-level concerns.
 **security-reviewer verdict:** <APPROVE | REQUEST CHANGES | BLOCK> — <one-line summary>
 
 ### Clarity
+
 <is the intent of the change obvious from the diff?>
 
 ### Logic
+
 <does the implementation satisfy the acceptance criteria on the linked issue?>
 
 ### Edge cases
+
 <what did the writer miss? at least one concrete case or "none found">
 
 ### Assumptions
+
 <what did the writer take for granted that is worth double-checking?>
 
 ### Risk
+
 <blast radius if this ships broken — low / medium / high + one sentence>
 
 ### AI-disclosure audit
+
 - Writer claimed `<~X%>` AI-generated. My read of the diff says `<close / higher / lower>` because `<evidence>`.
 - Human review line says "`<copy/paste>`" — is that specific enough? `<yes / no, because>`.
 ```

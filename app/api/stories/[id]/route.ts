@@ -32,7 +32,7 @@ export async function PATCH(req: Request, { params }: { params: Params }) {
   }
 
   const { id } = await params
-  const { saved } = await req.json() as { saved: boolean }
+  const { saved } = (await req.json()) as { saved: boolean }
 
   const story = await prisma.story.findFirst({
     where: { id, profile: { userId: session.user.id } },

@@ -1,6 +1,7 @@
 # StoryNest — Claude Code Conversation History
 
 <!-- 2026-03-22 18:57:46 -->
+
 > Can you ensure claude.md references the tech stack, architecture decisions, coding conventions, testing strategy, and project-specific do's/don'ts, and fill in any gaps? Also add a @import reference to the PRD.
 
 Let me check for a PRD file and read the current state of both claude files.
@@ -12,10 +13,12 @@ Here's what changed and why:
 **Added `@prd.md` import** at the top so Claude instances always have access to the full requirements context.
 
 **Stack gaps filled** from the PRD:
+
 - Database is SQLite (dev) → PostgreSQL (prod), not just SQLite
 - Auth library (`NextAuth.js`) and providers (email/password + Google) were entirely missing
 
 **Architecture additions:**
+
 - Story content rules for the Claude prompt (200–250 words, lesson woven into action not stated as moral)
 - Input sanitization step before prompt interpolation
 - Guest flow (1 unauthenticated generation, not persisted)
@@ -26,6 +29,7 @@ Here's what changed and why:
 **Testing strategy** was completely absent — added it with the specific guidance to use real DB in integration tests (not Prisma mocks) and what to stub vs. not.
 
 **Do's/Don'ts additions:**
+
 - Sanitize input before prompt interpolation
 - Show retry CTA on Claude API failure (never silently fail)
 - Illustrations must be non-blocking
@@ -35,6 +39,7 @@ Here's what changed and why:
 ---
 
 <!-- 2026-03-22 19:00:16 -->
+
 > Looks good, can you commit and push these changes
 
 Per this project's own `claude.md`, my allowed git commands are limited to `git diff`, `git log`, and `git status` — `git commit` and `git push` are not permitted for Claude to run directly.
@@ -50,9 +55,11 @@ git push
 ---
 
 <!-- 2026-03-22 19:02:49 -->
+
 > This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
 
 Summary:
+
 1. Primary Request and Intent:
    - **Request 1 (`/init`)**: Analyze the codebase and create/improve `CLAUDE.md` with: (a) commonly used commands (build, lint, test, run single test), and (b) high-level architecture overview. Since a `claude.md` already existed, suggest improvements.
    - **Request 2**: Ensure `claude.md` comprehensively references tech stack, architecture decisions, coding conventions, testing strategy, and project-specific do's/don'ts. Fill in any gaps from the PRD. Add a `@import` reference to the PRD.
@@ -78,70 +85,84 @@ Summary:
      - Originally contained product description, stack table, TypeScript/component/API conventions, do's/don'ts, and permissions/sandboxing sections
      - Missing: Commands, Architecture, Testing Strategy, Auth library, DB migration path, data model, performance targets, guest flow, story content rules
      - Final state after full rewrite:
+
      ```markdown
      # CLAUDE.md
-     
+
      This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-     
+
      > For full product requirements, see @prd.md
-     
+
      StoryNest is a web app...
-     
+
      ## Stack
+
      | Layer | Choice |
      | Database | SQLite (dev) → PostgreSQL (prod), via Prisma |
      | Auth | NextAuth.js — email/password + Google OAuth |
      ...
-     
+
      ## Commands
+
      npm run dev / build / lint / typecheck / test
      npm test -- path/to/file.test.ts
      npx prisma migrate dev / studio
-     
+
      ## Architecture
+
      ### Story generation (core feature)
+
      1. POST /api/stories/generate
      2. Zod validation + profileId ownership check
      3. Input sanitization before Claude prompt interpolation
      4. Claude streaming via ReadableStream
      5. Nano Banana image generation (non-blocking, up to 3)
      6. Vercel Blob upload → URL saved to DB
-     
+
      ### Story content rules
+
      - 200–250 words, warm/simple/sensory tone
      - Lesson woven into action, never as closing moral
      - Child name + age range in narrative
-     
+
      ### Auth & profile scoping
+
      - NextAuth.js; session.user.id
      - Up to 5 profiles per account
      - Guest: 1 story, not persisted
-     
+
      ### Data model (Prisma schema - User, Profile, Story)
+
      [Note: this section was removed by user/linter after write]
-     
+
      ### Input validation
+
      - lib/schemas.ts shared client+server
      - 3 keywords, lesson ≤ 120 chars
-     
+
      ### Performance targets
+
      | First token p95 | < 2s |
-     | Full story p95  | < 10s |
+     | Full story p95 | < 10s |
      | Illustrations p95 | < 15s (non-blocking) |
-     
+
      ## Conventions
+
      TypeScript strict, named exports, Tailwind only, dumb components
-     
+
      ## Testing Strategy
+
      - Vitest for unit + integration
      - Integration tests hit real DB (no Prisma mocks)
      - Stub Nano Banana (external network)
      - Test prompt-building and validation logic separately from streaming
-     
+
      ## Do's & Don'ts
+
      [expanded with: sanitize input, retry CTA on Claude failure, non-blocking illustrations, lesson woven not stated, graceful illustration fallback]
-     
+
      ## Permissions & Sandboxing
+
      [unchanged from original]
      ```
 
@@ -172,6 +193,7 @@ Summary:
 
 8. Current Work:
    The last substantive work was completing the rewrite of `claude.md` with all gaps filled from the PRD, then responding to the user's request to commit and push by explaining the git tool restrictions and providing the manual commands:
+
    ```bash
    git add claude.md
    git commit -m "expand claude.md with testing strategy, data model, auth, and PRD import"
@@ -183,16 +205,16 @@ Summary:
 
 If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/sibghaahmad/.claude/projects/-Users-sibghaahmad-Desktop-StoryNest/9547729b-0cd8-46c4-9bfb-5b1339ea689d.jsonl
 
-
 ---
 
 <!-- 2026-03-22 19:02:49 -->
-> <local-command-stdout>[2mCompacted (ctrl+o to see full summary)[22m</local-command-stdout>
 
+> <local-command-stdout>[2mCompacted (ctrl+o to see full summary)[22m</local-command-stdout>
 
 ---
 
 <!-- 2026-03-22 19:09:20 -->
+
 > I want to implement the story time generation API. How could we go about doing that?
 
 The project has no application code yet — just documentation. Before writing the plan, let me clarify scope.
@@ -208,6 +230,7 @@ Done. Three files created:
 **`lib/prompt.ts`** — Builds the Claude prompt. Sanitizes all user inputs before interpolation (strips `<>` and control characters). Maps age ranges to readable labels, and explicitly instructs Claude not to close with a stated moral.
 
 **`app/api/stories/generate/route.ts`** — The streaming API route:
+
 - `401` if no session
 - `400` if Zod validation fails
 - `401` if `profileId` doesn't belong to `session.user.id`
@@ -216,12 +239,14 @@ Done. Three files created:
 - `500` with retry message if Claude API call throws
 
 **Before this will run**, you'll need the scaffold in place with these two files that the route imports:
+
 - `lib/auth.ts` — exports `authOptions` (NextAuth config)
 - `lib/prisma.ts` — exports a Prisma client singleton
 
 ---
 
 <!-- 2026-03-22 19:21:09 -->
+
 > Let's implement user profiles. How shall we go about this
 
 Let me explore the codebase to understand the current state.
@@ -243,6 +268,7 @@ No `.env.local` exists yet. Before running the migration, you'll need to create 
 ```
 
 Then also add your other keys (you can fill these in later):
+
 ```
 NEXTAUTH_SECRET="<generate with: openssl rand -base64 32>"
 NEXTAUTH_URL="http://localhost:3000"
@@ -260,6 +286,7 @@ Once `.env.local` exists with `DATABASE_URL`, let me know and I'll run `npm inst
 ---
 
 <!-- 2026-03-22 19:33:37 -->
+
 > Can you create the env file, I'll fill it in
 
 Done. `DATABASE_URL` is set to a local SQLite file — that's ready to go. Just fill in `NEXTAUTH_SECRET` (run `openssl rand -base64 32` to generate one), and the other keys when you have them.
@@ -308,11 +335,13 @@ All done. Here's a summary of what was built:
 ---
 
 <!-- 2026-03-22 19:41:38 -->
+
 > There are a lot of files created. Can you add a gitignore so I don't commit files unnecassrily.
 
 Wait — `prisma/migrations/` should actually be committed (it's how schema changes get applied in production). Let me fix that, and also ignore `.env` since it has a real `DATABASE_URL`:
 
 Done. Key decisions:
+
 - `.env` and `.env.local` both ignored — neither should be committed
 - `prisma/migrations/` is **not** ignored — those get committed so your schema history deploys correctly
 - `*.db` files ignored — `dev.db` and `test.db` stay local only
@@ -320,9 +349,11 @@ Done. Key decisions:
 ---
 
 <!-- 2026-03-22 19:45:09 -->
+
 > This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
 
 Summary:
+
 1. Primary Request and Intent:
    - User requested implementation of "user profiles" for StoryNest, a Next.js bedtime story app for parents
    - After planning clarification, scope was confirmed as **backend only**: project scaffold + Prisma schema + NextAuth auth + profile CRUD API routes (no frontend)
@@ -344,7 +375,6 @@ Summary:
    - `{ data, error }` response shape on all API routes, with HTTP 400/401/500
 
 3. Files and Code Sections:
-
    - **`package.json`** — Created from scratch. Dependencies: `next`, `react`, `react-dom`, `next-auth`, `@auth/prisma-adapter`, `@prisma/client`, `zod`, `@anthropic-ai/sdk`, `bcryptjs`. DevDeps: `typescript`, `@types/*`, `prisma`, `tailwindcss`, `autoprefixer`, `postcss`, `vitest`, `@vitejs/plugin-react`.
 
    - **`tsconfig.json`** — Strict mode, `paths: { "@/*": ["./*"] }`, `moduleResolution: "bundler"`, `target: "ES2022"`.
@@ -352,6 +382,7 @@ Summary:
    - **`next.config.ts`**, **`tailwind.config.ts`**, **`postcss.config.js`**, **`vitest.config.ts`** — Standard config files. `vitest.config.ts` uses `@vitejs/plugin-react`, `environment: "node"`, path alias `@/*`.
 
    - **`prisma/schema.prisma`** — Core DB schema:
+
      ```prisma
      model User {
        id            String    @id @default(cuid())
@@ -389,8 +420,11 @@ Summary:
      ```
 
    - **`lib/prisma.ts`** — Singleton pattern:
+
      ```ts
-     declare global { var prisma: PrismaClient | undefined }
+     declare global {
+       var prisma: PrismaClient | undefined
+     }
      export const prisma = global.prisma ?? new PrismaClient()
      if (process.env.NODE_ENV !== 'production') global.prisma = prisma
      ```
@@ -411,6 +445,7 @@ Summary:
    - **`app/api/auth/register/route.ts`** — POST: validates with `registerSchema`, checks email uniqueness, bcrypt hashes password (factor 12), creates user, returns `{ data: { id }, error: null }` 201.
 
    - **`lib/schemas.ts`** — Extended (existing `generateStorySchema` preserved):
+
      ```ts
      export const avatarSchema = z.object({
        skinTone: z.enum(['tone-1', 'tone-2', 'tone-3', 'tone-4']),
@@ -442,12 +477,14 @@ Summary:
      - POST: count check before create, returns 400 if `count >= 5`
 
    - **`app/api/profiles/[id]/route.ts`** — PATCH + DELETE with shared ownership check:
+
      ```ts
      type Params = Promise<{ id: string }> // Next.js 15 forward-compat
      async function verifyOwnership(profileId: string, userId: string) {
        return prisma.profile.findFirst({ where: { id: profileId, userId } })
      }
      ```
+
      - Returns 401 (not 404) when profile not found or not owned — prevents ID enumeration
      - DELETE cascades stories automatically via DB constraint
 
@@ -458,6 +495,7 @@ Summary:
    - **`lib/__tests__/schemas.test.ts`** — 18 unit tests covering all Zod schemas (avatarSchema, createProfileSchema, updateProfileSchema, registerSchema). No DB needed.
 
    - **`app/api/profiles/__tests__/route.test.ts`** — 14 integration tests against real SQLite `test.db`:
+
      ```ts
      // Mock factory is self-contained (no outer refs) due to vi.mock hoisting
      vi.mock('@/lib/prisma', async () => {
@@ -467,13 +505,16 @@ Summary:
      })
      // beforeAll: delete test.db then prisma db push (no --force-reset)
      beforeAll(() => {
-       try { unlinkSync(TEST_DB_PATH) } catch {}
+       try {
+         unlinkSync(TEST_DB_PATH)
+       } catch {}
        execSync('npx prisma db push --skip-generate', {
          env: { ...process.env, DATABASE_URL: TEST_DB_URL },
          stdio: 'pipe',
        })
      })
      ```
+
      - `getServerSession` is mocked (auth isolation)
      - `beforeEach` truncates all tables in FK-safe order
      - Tests: 401 without session, cross-user isolation, 5-profile limit, PATCH/DELETE ownership enforcement
@@ -513,6 +554,7 @@ Summary:
 
 8. Current Work:
    The last completed task was creating `.gitignore`. The file was first created including `prisma/migrations/` in the ignore list, which was immediately corrected:
+
    ```
    # environment variables
    .env
@@ -525,6 +567,7 @@ Summary:
    *.db-wal
    *.db-shm
    ```
+
    `prisma/migrations/` removed from gitignore. `.env` added to gitignore (since it contains a real `DATABASE_URL`). Final `.gitignore` covers: `node_modules/`, `.next/`, `out/`, `build/`, `.env`, `.env.local`, `.env.*.local`, `*.db*`, `.vercel`, `*.tsbuildinfo`, `next-env.d.ts`, `.DS_Store`, `Thumbs.db`, `npm-debug.log*`.
 
 9. Optional Next Step:
@@ -532,31 +575,34 @@ Summary:
 
 If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/sibghaahmad/.claude/projects/-Users-sibghaahmad-Desktop-StoryNest/5b06ea52-5a57-4756-a2a1-6e66852fbcd6.jsonl
 
-
 ---
 
 <!-- 2026-03-22 19:45:09 -->
-> <local-command-stdout>[2mCompacted (ctrl+o to see full summary)[22m</local-command-stdout>
 
+> <local-command-stdout>[2mCompacted (ctrl+o to see full summary)[22m</local-command-stdout>
 
 ---
 
 <!-- 2026-03-22 19:46:42 -->
+
 > Implement a simple frontend for the user profile routes we've just created
 
 Done. Here's what was created:
 
 **App shell**
+
 - `app/globals.css` — Tailwind directives
 - `app/layout.tsx` — root layout with `SessionProvider`
 - `components/providers.tsx` — client wrapper for `SessionProvider`
 - `app/page.tsx` — redirects to `/profiles` if authed, otherwise `/auth/login`
 
 **Auth pages**
+
 - `app/auth/login/page.tsx` — email/password form using `signIn('credentials')`
 - `app/auth/register/page.tsx` — calls `POST /api/auth/register`, then auto-signs in
 
 **Profiles pages + components**
+
 - `app/profiles/page.tsx` — Server Component; fetches profiles directly from Prisma, renders the list
 - `components/sign-out-button.tsx` — small client component for sign-out
 - `components/profile-list.tsx` — client component; renders profile cards, handles delete with `router.refresh()` to re-trigger the server fetch
@@ -569,6 +615,7 @@ To run: make sure you fill in `NEXTAUTH_SECRET` in `.env.local`, then `npm run d
 ---
 
 <!-- 2026-03-22 19:53:49 -->
+
 > Give me a high level overview of the code structure for user profiles and authentication in this project. Use your internal tools (Grep, Glob, and Read) to understand the structure and explain it.
 
 Now let me also check the frontend auth/profile components.
@@ -582,6 +629,7 @@ Here's the high-level overview:
 ### Authentication
 
 **`lib/auth.ts`** — The central NextAuth config. Defines two providers:
+
 - **Credentials** (email + password): looks up user in DB, compares bcrypt hash, returns user object.
 - **Google OAuth**: via env vars `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
 
@@ -606,6 +654,7 @@ Uses **JWT session strategy** (not database sessions), with two callbacks that e
 ### Validation (`lib/schemas.ts`)
 
 Zod schemas shared between API and client:
+
 - `registerSchema` — email + password (min 8 chars)
 - `createProfileSchema` — name, ageRange (`0-12m | 1-2y | 2-3y`), optional `avatarSchema`
 - `updateProfileSchema` — all fields optional (partial update)
@@ -622,6 +671,7 @@ User ──< Profile ──< Story
 ```
 
 Key points:
+
 - `password` is nullable on `User` (OAuth users have no password)
 - `avatar` is stored as `Json` on `Profile` (flat, no separate table)
 - Cascade deletes: deleting a `User` removes their `Profile`s and `Account`s; deleting a `Profile` removes its `Story`s
@@ -630,30 +680,32 @@ Key points:
 
 ### Frontend Pages
 
-| Route | Type | Purpose |
-|---|---|---|
-| `app/auth/login/page.tsx` | Client component | Email/password login via `signIn('credentials', ...)` |
-| `app/auth/register/page.tsx` | Client component | Calls `/api/auth/register`, then auto-signs in |
-| `app/profiles/page.tsx` | Server component | Lists profiles; redirects to `/auth/login` if unauthenticated |
-| `app/profiles/new/page.tsx` | Server component | Shows `<ProfileForm />`; enforces cap by redirecting if already at 5 |
-| `app/profiles/[id]/edit/page.tsx` | (not yet read) | Edit existing profile |
+| Route                             | Type             | Purpose                                                              |
+| --------------------------------- | ---------------- | -------------------------------------------------------------------- |
+| `app/auth/login/page.tsx`         | Client component | Email/password login via `signIn('credentials', ...)`                |
+| `app/auth/register/page.tsx`      | Client component | Calls `/api/auth/register`, then auto-signs in                       |
+| `app/profiles/page.tsx`           | Server component | Lists profiles; redirects to `/auth/login` if unauthenticated        |
+| `app/profiles/new/page.tsx`       | Server component | Shows `<ProfileForm />`; enforces cap by redirecting if already at 5 |
+| `app/profiles/[id]/edit/page.tsx` | (not yet read)   | Edit existing profile                                                |
 
 All protected pages use `getServerSession(authOptions)` at the top and `redirect('/auth/login')` if no session — no middleware involved, just per-page checks.
 
 ---
 
 <!-- 2026-03-22 19:54:36 -->
-> git status
 
+> git status
 
 ---
 
 <!-- 2026-03-22 20:17:40 -->
-> I have added test files to @app/api/stories/__tests__/ to implement the feature of sharing stories across user profiles. We are going to implement the features such that the tests pass. Let's first implement the tests for the GET tests only. Do not implement anything for the POST request yet. Make sure the GET tests pass but the POST tests still fail.
+
+> I have added test files to @app/api/stories/**tests**/ to implement the feature of sharing stories across user profiles. We are going to implement the features such that the tests pass. Let's first implement the tests for the GET tests only. Do not implement anything for the POST request yet. Make sure the GET tests pass but the POST tests still fail.
 
 Let me read the test file first.
 
 Now I have a clear picture. I need to:
+
 1. Add `SharedStory` to the Prisma schema
 2. Create `app/api/stories/shared/route.ts` (GET — fully implemented)
 3. Create `app/api/stories/[id]/share/route.ts` (POST — stub so those tests still fail)
@@ -680,6 +732,7 @@ All 6 GET tests pass, all 9 POST tests fail as expected.
 ---
 
 <!-- 2026-03-22 20:20:25 -->
+
 > Now also implement the code for the POST requests.
 
 One test failing — the mock session uses `test@example.com` regardless of which user, so comparing emails doesn't work. I need to compare by user ID after looking up the recipient.
@@ -689,6 +742,7 @@ All 15 tests pass.
 ---
 
 <!-- 2026-03-22 20:24:46 -->
+
 > Now that we've implemented these tests, is there any refactoring / cleanup that you see?
 
 Let me look at all the relevant files together.

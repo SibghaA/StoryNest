@@ -32,8 +32,7 @@ The Playwright MCP server closed that gap. What it enabled concretely:
 
 What MCP did not replace: the Vitest integration tests. The Playwright tests are slower and depend on a running server, so they sit in a separate `e2e/` directory and are run deliberately rather than on every save. The fast feedback loop for API logic still belongs to Vitest.
 
-The screenshot for the playwright MCP is at playwright-mcp.png in this repo.
----
+## The screenshot for the playwright MCP is at playwright-mcp.png in this repo.
 
 ## 3. What I Would Build Next
 

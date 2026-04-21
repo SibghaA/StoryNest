@@ -28,7 +28,11 @@ const mockGenerateImage = vi.mocked(generateImage)
 // ── DB setup ──────────────────────────────────────────────────────────────────
 
 beforeAll(() => {
-  try { unlinkSync(TEST_DB_PATH) } catch { /* file may not exist */ }
+  try {
+    unlinkSync(TEST_DB_PATH)
+  } catch {
+    /* file may not exist */
+  }
   execSync('npx prisma db push --skip-generate', {
     env: { ...process.env, DATABASE_URL: `file:${TEST_DB_PATH}` },
     stdio: 'pipe',

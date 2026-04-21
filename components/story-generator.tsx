@@ -7,40 +7,75 @@ import type { Profile } from '@prisma/client'
 // ── Scenarios ─────────────────────────────────────────────────────────────────
 
 const SCENARIOS = [
-  { id: 'forest-friends',  label: 'Forest Friends',  emoji: '🌲', keywords: ['forest',   'animals',   'friendship']  },
-  { id: 'under-the-sea',   label: 'Under the Sea',   emoji: '🌊', keywords: ['ocean',    'fish',      'adventure']   },
-  { id: 'starry-night',    label: 'Starry Night',    emoji: '✨', keywords: ['stars',    'moon',      'dreams']      },
-  { id: 'rainbow-garden',  label: 'Rainbow Garden',  emoji: '🌈', keywords: ['garden',   'flowers',   'butterflies'] },
-  { id: 'safari-animals',  label: 'Safari Animals',  emoji: '🦁', keywords: ['savanna',  'elephants', 'giraffes']    },
-  { id: 'little-train',    label: 'Little Train',    emoji: '🚂', keywords: ['train',    'journey',   'friends']     },
-  { id: 'cozy-nest',       label: 'Cozy Nest',       emoji: '🏠', keywords: ['home',     'family',    'warmth']      },
-  { id: 'sweet-kitchen',   label: 'Sweet Kitchen',   emoji: '🧁', keywords: ['baking',   'cookies',   'magic']       },
-  { id: 'cloud-castle',    label: 'Cloud Castle',    emoji: '☁️', keywords: ['clouds',   'sky',       'imagination'] },
-  { id: 'custom',          label: 'My Own Idea',     emoji: '✏️', keywords: null                                     },
+  {
+    id: 'forest-friends',
+    label: 'Forest Friends',
+    emoji: '🌲',
+    keywords: ['forest', 'animals', 'friendship'],
+  },
+  {
+    id: 'under-the-sea',
+    label: 'Under the Sea',
+    emoji: '🌊',
+    keywords: ['ocean', 'fish', 'adventure'],
+  },
+  { id: 'starry-night', label: 'Starry Night', emoji: '✨', keywords: ['stars', 'moon', 'dreams'] },
+  {
+    id: 'rainbow-garden',
+    label: 'Rainbow Garden',
+    emoji: '🌈',
+    keywords: ['garden', 'flowers', 'butterflies'],
+  },
+  {
+    id: 'safari-animals',
+    label: 'Safari Animals',
+    emoji: '🦁',
+    keywords: ['savanna', 'elephants', 'giraffes'],
+  },
+  {
+    id: 'little-train',
+    label: 'Little Train',
+    emoji: '🚂',
+    keywords: ['train', 'journey', 'friends'],
+  },
+  { id: 'cozy-nest', label: 'Cozy Nest', emoji: '🏠', keywords: ['home', 'family', 'warmth'] },
+  {
+    id: 'sweet-kitchen',
+    label: 'Sweet Kitchen',
+    emoji: '🧁',
+    keywords: ['baking', 'cookies', 'magic'],
+  },
+  {
+    id: 'cloud-castle',
+    label: 'Cloud Castle',
+    emoji: '☁️',
+    keywords: ['clouds', 'sky', 'imagination'],
+  },
+  { id: 'custom', label: 'My Own Idea', emoji: '✏️', keywords: null },
 ] as const
 
-type ScenarioId = typeof SCENARIOS[number]['id']
+type ScenarioId = (typeof SCENARIOS)[number]['id']
 
 // ── Relationship options ──────────────────────────────────────────────────────
 
 const RELATIONSHIPS = [
-  { label: 'Siblings',      emoji: '👧🧒' },
-  { label: 'Twins',         emoji: '👯' },
-  { label: 'Best Friends',  emoji: '💛' },
-  { label: 'Friends',       emoji: '🤝' },
-  { label: 'Cousins',       emoji: '🌟' },
-  { label: 'Classmates',    emoji: '🏫' },
+  { label: 'Siblings', emoji: '👧🧒' },
+  { label: 'Twins', emoji: '👯' },
+  { label: 'Best Friends', emoji: '💛' },
+  { label: 'Friends', emoji: '🤝' },
+  { label: 'Cousins', emoji: '🌟' },
+  { label: 'Classmates', emoji: '🏫' },
 ]
 
 // ── Lesson presets ────────────────────────────────────────────────────────────
 
 const LESSON_PRESETS = [
-  { label: 'Sharing',    emoji: '🤝' },
-  { label: 'Courage',    emoji: '🦸' },
-  { label: 'Kindness',   emoji: '💛' },
-  { label: 'Patience',   emoji: '⏳' },
-  { label: 'Honesty',    emoji: '💬' },
-  { label: 'Gratitude',  emoji: '🙏' },
+  { label: 'Sharing', emoji: '🤝' },
+  { label: 'Courage', emoji: '🦸' },
+  { label: 'Kindness', emoji: '💛' },
+  { label: 'Patience', emoji: '⏳' },
+  { label: 'Honesty', emoji: '💬' },
+  { label: 'Gratitude', emoji: '🙏' },
 ]
 
 // ── Skin tone helper ──────────────────────────────────────────────────────────
@@ -68,14 +103,14 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
   const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>(
     profiles[0] ? [profiles[0].id] : [],
   )
-  const [scenarioId, setScenarioId]         = useState<ScenarioId | ''>('')
+  const [scenarioId, setScenarioId] = useState<ScenarioId | ''>('')
   const [customKeywords, setCustomKeywords] = useState(['', '', ''])
-  const [lesson, setLesson]                 = useState('')
-  const [relationship, setRelationship]     = useState('')
-  const [loading, setLoading]               = useState(false)
-  const [error, setError]                   = useState('')
+  const [lesson, setLesson] = useState('')
+  const [relationship, setRelationship] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const primaryProfile   = profiles.find(p => p.id === selectedProfileIds[0])
+  const primaryProfile = profiles.find(p => p.id === selectedProfileIds[0])
   const selectedScenario = SCENARIOS.find(s => s.id === scenarioId)
 
   function toggleProfile(id: string) {
@@ -88,7 +123,7 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
     })
     setError('')
   }
-  const isCustom         = scenarioId === 'custom'
+  const isCustom = scenarioId === 'custom'
   const keywords: string[] = selectedScenario?.keywords
     ? [...selectedScenario.keywords]
     : customKeywords
@@ -106,13 +141,22 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault()
 
-    if (selectedProfileIds.length === 0) { setError('Please select at least one child.'); return }
-    if (!scenarioId) { setError('Please choose a scenario.'); return }
+    if (selectedProfileIds.length === 0) {
+      setError('Please select at least one child.')
+      return
+    }
+    if (!scenarioId) {
+      setError('Please choose a scenario.')
+      return
+    }
     if (isCustom && customKeywords.some(k => !k.trim())) {
       setError('Please fill in all 3 keywords for your custom idea.')
       return
     }
-    if (!lesson.trim()) { setError('Please choose or type a life lesson.'); return }
+    if (!lesson.trim()) {
+      setError('Please choose or type a life lesson.')
+      return
+    }
 
     setError('')
     setError('')
@@ -134,7 +178,11 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
       const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
-        setError(typeof data.error === 'string' ? data.error : 'Story generation failed. Please try again.')
+        setError(
+          typeof data.error === 'string'
+            ? data.error
+            : 'Story generation failed. Please try again.',
+        )
         return
       }
 
@@ -148,7 +196,6 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
 
   return (
     <form onSubmit={handleGenerate} className="space-y-8">
-
       {/* ── Profile selector (multi-select) ── */}
       <section>
         <p className="mb-1 text-sm font-semibold text-gray-700 uppercase tracking-wide">
@@ -176,9 +223,7 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
                   {p.name[0].toUpperCase()}
                 </span>
                 {p.name}
-                {isSelected && (
-                  <span className="ml-0.5 text-amber-600">✓</span>
-                )}
+                {isSelected && <span className="ml-0.5 text-amber-600">✓</span>}
               </button>
             )
           })}
@@ -202,7 +247,7 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
               <button
                 key={label}
                 type="button"
-                onClick={() => setRelationship(prev => prev === label ? '' : label)}
+                onClick={() => setRelationship(prev => (prev === label ? '' : label))}
                 className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
                   relationship === label
                     ? 'border-amber-500 bg-amber-50 text-amber-800'
@@ -243,7 +288,10 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
         {selectedScenario && !isCustom && selectedScenario.keywords && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {selectedScenario.keywords.map(kw => (
-              <span key={kw} className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700">
+              <span
+                key={kw}
+                className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700"
+              >
                 {kw}
               </span>
             ))}
@@ -271,7 +319,9 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
       {/* ── Lesson picker ── */}
       <section>
         <p className="mb-3 text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          What will {selectedProfileIds.length > 1 ? 'the children' : (primaryProfile?.name ?? 'your child')} learn?
+          What will{' '}
+          {selectedProfileIds.length > 1 ? 'the children' : (primaryProfile?.name ?? 'your child')}{' '}
+          learn?
         </p>
         <div className="mb-2 flex flex-wrap gap-2">
           {LESSON_PRESETS.map(({ label, emoji }) => (
@@ -317,10 +367,17 @@ export function StoryGenerator({ profiles }: StoryGeneratorProps) {
         disabled={loading}
         className="w-full rounded-xl bg-amber-600 py-3.5 text-sm font-semibold text-white shadow hover:bg-amber-700 disabled:opacity-50"
       >
-        {loading ? 'Writing the story…' : `✨ Generate story for ${selectedProfileIds.length > 1 ? profiles.filter(p => selectedProfileIds.includes(p.id)).map(p => p.name).join(' & ') : (primaryProfile?.name ?? 'your child')}`}
+        {loading
+          ? 'Writing the story…'
+          : `✨ Generate story for ${
+              selectedProfileIds.length > 1
+                ? profiles
+                    .filter(p => selectedProfileIds.includes(p.id))
+                    .map(p => p.name)
+                    .join(' & ')
+                : (primaryProfile?.name ?? 'your child')
+            }`}
       </button>
-
-
     </form>
   )
 }

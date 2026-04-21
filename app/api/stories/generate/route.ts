@@ -21,10 +21,7 @@ export async function POST(req: NextRequest) {
 
   const result = generateStorySchema.safeParse(body)
   if (!result.success) {
-    return Response.json(
-      { data: null, error: result.error.flatten() },
-      { status: 400 },
-    )
+    return Response.json({ data: null, error: result.error.flatten() }, { status: 400 })
   }
 
   const { profileIds, keywords, lesson, scenario, relationship } = result.data

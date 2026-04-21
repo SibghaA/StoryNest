@@ -10,6 +10,7 @@ You are opening a pull request for work already committed to the current branch.
 ## Step 1 — Confirm the branch is ready to review
 
 Run these in parallel:
+
 - `git status` — must be clean. If there are uncommitted changes, stop and ask the user what to do with them.
 - `git log main..HEAD --oneline` — the list of commits this PR will contain.
 - `git diff main...HEAD --stat` — the file-level shape of the change.
@@ -39,6 +40,7 @@ Use this template verbatim. Each section must be filled in; do not leave placeho
 
 ```markdown
 ## Summary
+
 <2–4 sentences: what changed and why>
 
 ## C.L.E.A.R. self-review
@@ -59,11 +61,13 @@ Use this template verbatim. Each section must be filled in; do not leave placeho
 <low / medium / high + 1 sentence justifying>
 
 ## Test plan
+
 - [ ] Unit / integration tests added or updated
 - [ ] E2E test added or updated (if UI changed)
 - [ ] Manual steps the reviewer can run locally
 
 ## AI disclosure
+
 - **Tool:** Claude Code (model: <claude-opus-4-7 / claude-sonnet-4-6 / etc.>)
 - **% AI-generated:** <rough estimate of lines written by the agent vs. by you>
 - **Human review applied:** <what you read, ran, and verified yourself>
@@ -71,6 +75,7 @@ Use this template verbatim. Each section must be filled in; do not leave placeho
 ```
 
 Rules for filling it in:
+
 - The % AI-generated number is an honest estimate, not a precise metric. Typical ranges: `~90%` for agent-heavy work, `~50%` for pair-authored, `<20%` for minor agent edits on human code.
 - Never write "100%" — a human reviewed it, so at minimum the review counts as human input.
 - If a security-reviewer or other sub-agent was invoked on the diff, paste a one-line summary of its finding(s) under **Agents invoked**.

@@ -18,6 +18,7 @@ Run TaskGet on the chosen task ID to read its full description and acceptance cr
 ## Step 3 — Read relevant existing code
 
 Before writing a single line, read:
+
 - Any existing route handlers or components that are most closely related to what you're building
 - The test file that most resembles the pattern you'll follow (e.g. `app/api/profiles/__tests__/route.test.ts` for API tasks, any existing component for UI tasks)
 - `lib/schemas.ts` if you need to add or reuse a Zod schema
@@ -29,6 +30,7 @@ Do not guess patterns from memory — read the actual files.
 Create or extend the test file before implementing anything.
 
 **For API route tests** follow this exact pattern already used in the project:
+
 - Use a dedicated test DB file (e.g. `test-<feature>.db`) — never reuse `test.db` or `test-share.db`
 - Mock `next-auth` and `@/lib/auth` (as shown in existing tests); do NOT mock Prisma
 - Run `npx prisma db push --skip-generate` with the test DB URL in `beforeAll`
@@ -48,6 +50,7 @@ Run `npm test -- path/to/your.test.ts` after writing tests. They should FAIL at 
 Write the implementation to make the tests pass.
 
 **API routes must:**
+
 - Check auth first: `const session = await getServerSession(authOptions)` — return 401 if missing
 - Validate input with Zod schema from `lib/schemas.ts` (add the schema there if it doesn't exist)
 - Scope every DB query to `session.user.id` — never trust a bare `profileId`/`storyId` from the client
@@ -55,10 +58,12 @@ Write the implementation to make the tests pass.
 - Use correct HTTP status codes: 400 bad input, 401 unauth, 403 forbidden, 404 not found, 500 unexpected
 
 **TypeScript rules:**
+
 - Strict mode — no `any`. Use `unknown` and narrow explicitly.
 - Named exports only; default exports only for Next.js pages/layouts.
 
 **UI components must:**
+
 - Use Tailwind only — no inline styles, no external CSS
 - One component per file
 - Stay dumb — no data fetching in client components; pass data via props
@@ -66,6 +71,7 @@ Write the implementation to make the tests pass.
 - Placeholder text must include a concrete example (e.g. "e.g. ducks, puddles, giggling")
 
 **Do not:**
+
 - Call the Claude API from a client component
 - Store images as base64 — use Vercel Blob URLs
 - State the life lesson as a closing moral in story prompts

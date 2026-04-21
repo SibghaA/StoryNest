@@ -57,14 +57,20 @@ const noSession = () => vi.mocked(getServerSession).mockResolvedValue(null)
 
 beforeAll(() => {
   process.env.ANTHROPIC_API_KEY = 'test-key'
-  try { unlinkSync(TEST_DB_PATH) } catch { /* ok */ }
+  try {
+    unlinkSync(TEST_DB_PATH)
+  } catch {
+    /* ok */
+  }
   execSync('npx prisma db push --skip-generate', {
     env: { ...process.env, DATABASE_URL: TEST_DB_URL },
     stdio: 'pipe',
   })
 })
 
-afterAll(async () => { await testPrisma.$disconnect() })
+afterAll(async () => {
+  await testPrisma.$disconnect()
+})
 
 let profileId: string
 let storyId: string
@@ -113,10 +119,9 @@ describe('GET /api/stories/[id]/stream — auth & ownership', () => {
   })
 
   it('returns 404 for a non-existent story ID', async () => {
-    const res = await GET(
-      streamRequest('nonexistent-id'),
-      { params: Promise.resolve({ id: 'nonexistent-id' }) },
-    )
+    const res = await GET(streamRequest('nonexistent-id'), {
+      params: Promise.resolve({ id: 'nonexistent-id' }),
+    })
     expect(res.status).toBe(404)
   })
 
@@ -138,10 +143,9 @@ describe('GET /api/stories/[id]/stream — auth & ownership', () => {
       },
     })
 
-    const res = await GET(
-      streamRequest(otherStory.id),
-      { params: Promise.resolve({ id: otherStory.id }) },
-    )
+    const res = await GET(streamRequest(otherStory.id), {
+      params: Promise.resolve({ id: otherStory.id }),
+    })
     expect(res.status).toBe(404)
   })
 })

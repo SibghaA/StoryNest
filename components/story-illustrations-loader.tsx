@@ -32,7 +32,9 @@ export function StoryIllustrationsLoader({ storyId, initialUrls, parts }: Props)
       }
     }, 2500)
 
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [storyId, urls])
 
   return (
@@ -40,9 +42,7 @@ export function StoryIllustrationsLoader({ storyId, initialUrls, parts }: Props)
       {parts.map((part, i) => (
         <div key={i} className="mt-6 space-y-4">
           <div className="rounded-xl border border-amber-100 bg-white p-6 shadow-sm">
-            <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-800">
-              {part}
-            </p>
+            <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-800">{part}</p>
           </div>
           {urls[i] ? (
             <img

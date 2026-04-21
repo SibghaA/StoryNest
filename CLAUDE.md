@@ -20,16 +20,16 @@ avatar.
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| Frontend | React, TypeScript, Tailwind CSS |
-| Backend | Next.js (App Router, API routes) |
-| Database | SQLite (dev) → PostgreSQL (prod), via Prisma |
-| Auth | NextAuth.js — email/password + Google OAuth |
-| AI | Anthropic Claude API (`claude-sonnet-4-5`) |
-| Image gen | fal.ai `flux/schnell` (stand-in for Nano Banana; up to 3 per story) |
-| Storage | Vercel Blob |
-| Deployment | Vercel |
+| Layer      | Choice                                                              |
+| ---------- | ------------------------------------------------------------------- |
+| Frontend   | React, TypeScript, Tailwind CSS                                     |
+| Backend    | Next.js (App Router, API routes)                                    |
+| Database   | SQLite (dev) → PostgreSQL (prod), via Prisma                        |
+| Auth       | NextAuth.js — email/password + Google OAuth                         |
+| AI         | Anthropic Claude API (`claude-sonnet-4-5`)                          |
+| Image gen  | fal.ai `flux/schnell` (stand-in for Nano Banana; up to 3 per story) |
+| Storage    | Vercel Blob                                                         |
+| Deployment | Vercel                                                              |
 
 ---
 
@@ -53,15 +53,18 @@ npx prisma studio        # DB browser
 ## Conventions
 
 ### TypeScript
+
 - Strict mode on. No `any` — use `unknown` and narrow explicitly.
 - Named exports only (default exports reserved for Next.js pages / layouts).
 
 ### Components
+
 - One component per file. Tailwind only — no inline styles, no external CSS.
 - Keep client components dumb. Fetch in Server Components or route handlers,
   pass data down via props.
 
 ### API routes
+
 - Always `const session = await getServerSession(authOptions)` first. 401 if missing.
 - Validate input with a Zod schema from `lib/schemas.ts`.
 - Every DB query scopes to `session.user.id` (or a relation that reaches it).
@@ -88,14 +91,14 @@ npx prisma studio        # DB browser
 
 ## Claude Code configuration in this repo
 
-| Concern | Location |
-|---|---|
-| Shared settings + hooks | `.claude/settings.json` |
-| Local overrides (gitignored) | `.claude/settings.local.json` |
-| Hooks (scripts) | `.claude/hooks/` |
-| Custom skills | `.claude/skills/add-feature.md`, `.claude/skills/create-pr.md` |
-| Sub-agents | `.claude/agents/security-reviewer.md` |
-| MCP servers | `.mcp.json` (Playwright) |
+| Concern                      | Location                                                       |
+| ---------------------------- | -------------------------------------------------------------- |
+| Shared settings + hooks      | `.claude/settings.json`                                        |
+| Local overrides (gitignored) | `.claude/settings.local.json`                                  |
+| Hooks (scripts)              | `.claude/hooks/`                                               |
+| Custom skills                | `.claude/skills/add-feature.md`, `.claude/skills/create-pr.md` |
+| Sub-agents                   | `.claude/agents/security-reviewer.md`                          |
+| MCP servers                  | `.mcp.json` (Playwright)                                       |
 
 See `.claude/hooks/README.md` for hook behavior and `docs/security.md` for
 the security review checklist the `security-reviewer` agent applies.
@@ -110,12 +113,14 @@ Allowed Bash in shared settings: `npm run *`, `npx prisma *`, `git diff *`,
 **Never allow** `Bash(rm *)`, `Bash(curl *)`, or unrestricted `Bash(*)`.
 
 ### File system boundaries
+
 - No access outside the project root.
 - `prisma/migrations/*` and `.env*` are blocked by the PreToolUse hook —
   require explicit user confirmation to bypass.
 - CLAUDE.md, `docs/*`, and `.claude/*` may be edited freely.
 
 ### API key hygiene
+
 - `ANTHROPIC_API_KEY`, `FAL_AI_KEY`, `BLOB_STORAGE_URL`, `NEXTAUTH_SECRET`,
   and `DATABASE_URL` live in `.env.local` only.
 - Never log, echo, or interpolate keys into output files. Rotate immediately

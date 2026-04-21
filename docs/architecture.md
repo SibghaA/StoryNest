@@ -58,14 +58,14 @@ choke point — routes that bypass it are a security regression.
 
 All route handlers return `{ data, error }`:
 
-| Status | When |
-|---|---|
-| 200 / 201 | Success |
-| 400 | Bad input (Zod failure, malformed JSON) |
-| 401 | No session, or `profileId` does not belong to the caller |
-| 403 | Authenticated but not authorized for this resource |
-| 404 | Resource does not exist |
-| 500 | Unexpected failure |
+| Status    | When                                                     |
+| --------- | -------------------------------------------------------- |
+| 200 / 201 | Success                                                  |
+| 400       | Bad input (Zod failure, malformed JSON)                  |
+| 401       | No session, or `profileId` does not belong to the caller |
+| 403       | Authenticated but not authorized for this resource       |
+| 404       | Resource does not exist                                  |
+| 500       | Unexpected failure                                       |
 
 Never forward raw Prisma errors to the client. Log them server-side; return a
 generic message.

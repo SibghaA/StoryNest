@@ -1,6 +1,4 @@
-export type IllustrationSlot =
-  | { type: 'loaded'; url: string }
-  | { type: 'placeholder'; url: '' }
+export type IllustrationSlot = { type: 'loaded'; url: string } | { type: 'placeholder'; url: '' }
 
 /**
  * Maps up to 3 image URLs into exactly 3 display slots.

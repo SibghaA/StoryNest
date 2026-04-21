@@ -28,12 +28,13 @@ export default async function StoryPage({ params }: { params: Params }) {
   const date = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' }).format(story.createdAt)
 
   // Resolve names for all children in the story
-  const coProfiles = coProfileIds.length > 0
-    ? await prisma.profile.findMany({
-        where: { id: { in: coProfileIds } },
-        select: { name: true },
-      })
-    : []
+  const coProfiles =
+    coProfileIds.length > 0
+      ? await prisma.profile.findMany({
+          where: { id: { in: coProfileIds } },
+          select: { name: true },
+        })
+      : []
   const allChildNames = [story.profile.name, ...coProfiles.map(p => p.name)].join(' & ')
 
   const isGenerating = story.body === ''
@@ -52,13 +53,24 @@ export default async function StoryPage({ params }: { params: Params }) {
       {/* Metadata */}
       <div className="mb-6 rounded-xl bg-amber-50 p-4">
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-          <span><span className="font-medium text-gray-800">For</span> {allChildNames}</span>
-          <span><span className="font-medium text-gray-800">Lesson</span> {story.lesson}</span>
-          {!isGenerating && <span><span className="font-medium text-gray-800">Saved</span> {date}</span>}
+          <span>
+            <span className="font-medium text-gray-800">For</span> {allChildNames}
+          </span>
+          <span>
+            <span className="font-medium text-gray-800">Lesson</span> {story.lesson}
+          </span>
+          {!isGenerating && (
+            <span>
+              <span className="font-medium text-gray-800">Saved</span> {date}
+            </span>
+          )}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {keywords.map(kw => (
-            <span key={kw} className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700">
+            <span
+              key={kw}
+              className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs text-amber-700"
+            >
               {kw}
             </span>
           ))}

@@ -94,15 +94,19 @@ Return a single message in this exact shape. Do not add preamble.
 **Verdict:** <APPROVE | REQUEST CHANGES | BLOCK>
 
 ### Blockers
+
 - <one bullet per blocker, with file:line and the rule violated>
 
 ### Concerns
+
 - <one bullet per concern, with file:line and a short mitigation>
 
 ### Nits
+
 - <one bullet per nit>
 
 ### Notes
+
 - <anything that was checked and is explicitly fine, so the reviewer knows it was looked at>
 ```
 
@@ -116,5 +120,5 @@ If there are no findings in a severity, write `- none`. Do not omit the section.
 
 - Do not write or edit code. You are a reviewer.
 - Do not run the test suite. Leave that to CI.
-- Do not re-describe what the diff does — the PR body already does that. Only surface *risks*.
+- Do not re-describe what the diff does — the PR body already does that. Only surface _risks_.
 - Do not invent findings to look thorough. An empty Blockers list is a valid outcome.

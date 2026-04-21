@@ -19,7 +19,5 @@ export async function getProfileStories(profileId: string): Promise<Story[]> {
   `
 
   // Merge and sort newest first
-  return [...primary, ...co].sort(
-    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
-  )
+  return [...primary, ...co].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 }

@@ -131,7 +131,10 @@ describe('buildStoryPrompt', () => {
   })
 
   it('strips angle-bracket injection from child name', () => {
-    const prompt = buildStoryPrompt({ ...base, children: [{ name: '<script>alert(1)</script>', ageRange: '1-2y' }] })
+    const prompt = buildStoryPrompt({
+      ...base,
+      children: [{ name: '<script>alert(1)</script>', ageRange: '1-2y' }],
+    })
     expect(prompt).not.toContain('<script>')
     expect(prompt).not.toContain('</script>')
   })
@@ -148,7 +151,10 @@ describe('buildStoryPrompt', () => {
 
   it('includes relationship when multiple children are given', () => {
     const prompt = buildStoryPrompt({
-      children: [{ name: 'Zara', ageRange: '1-2y' }, { name: 'Leo', ageRange: '2-3y' }],
+      children: [
+        { name: 'Zara', ageRange: '1-2y' },
+        { name: 'Leo', ageRange: '2-3y' },
+      ],
       keywords: ['moon', 'bear', 'sleep'],
       lesson: 'sharing',
       relationship: 'best friends',
@@ -163,7 +169,10 @@ describe('buildStoryPrompt', () => {
 
   it('strips injection from relationship', () => {
     const prompt = buildStoryPrompt({
-      children: [{ name: 'Zara', ageRange: '1-2y' }, { name: 'Leo', ageRange: '2-3y' }],
+      children: [
+        { name: 'Zara', ageRange: '1-2y' },
+        { name: 'Leo', ageRange: '2-3y' },
+      ],
       keywords: ['moon', 'bear', 'sleep'],
       lesson: 'sharing',
       relationship: '<evil>hack</evil>',

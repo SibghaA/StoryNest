@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Status:** Draft  
-**Last updated:** March 2026  
+**Last updated:** March 2026
 
 ---
 
@@ -22,11 +22,11 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 
 ### 1.4 Target Users
 
-| Persona | Description | Primary need |
-|---|---|---|
-| **Maya** | First-time mom, 14-month-old | Fast, magical stories featuring her daughter's favorite things |
-| **Tariq** | Dad of 3-year-old twins, daily user | Lesson-driven stories he can save and re-read; multi-child support |
-| **Laila** | New parent, non-native English speaker | Low barrier to entry; simple UI that doesn't require fluent prose |
+| Persona   | Description                            | Primary need                                                       |
+| --------- | -------------------------------------- | ------------------------------------------------------------------ |
+| **Maya**  | First-time mom, 14-month-old           | Fast, magical stories featuring her daughter's favorite things     |
+| **Tariq** | Dad of 3-year-old twins, daily user    | Lesson-driven stories he can save and re-read; multi-child support |
+| **Laila** | New parent, non-native English speaker | Low barrier to entry; simple UI that doesn't require fluent prose  |
 
 ---
 
@@ -47,13 +47,13 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 
 ### 2.3 Success Metrics
 
-| Metric | Target (3 months post-launch) |
-|---|---|
-| Stories generated per active user per week | ≥ 3 |
-| Story save rate (saves / generations) | ≥ 40% |
-| Return visit rate (users active in week 2) | ≥ 35% |
-| Generation-to-completion rate (form submit → full story displayed) | ≥ 90% |
-| p95 story generation latency | < 10s |
+| Metric                                                             | Target (3 months post-launch) |
+| ------------------------------------------------------------------ | ----------------------------- |
+| Stories generated per active user per week                         | ≥ 3                           |
+| Story save rate (saves / generations)                              | ≥ 40%                         |
+| Return visit rate (users active in week 2)                         | ≥ 35%                         |
+| Generation-to-completion rate (form submit → full story displayed) | ≥ 90%                         |
+| p95 story generation latency                                       | < 10s                         |
 
 ---
 
@@ -92,6 +92,7 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 **Description:** Core generation flow. Parent fills in a form with three keywords, a life lesson, and selects a child profile. On submit, a 200–250 word story is streamed back from the Claude API and displayed.
 
 **Acceptance criteria:**
+
 - Form accepts exactly 3 keywords (validated client and server side)
 - Life lesson field has a character limit of 120 and offers 5 preset suggestions (sharing, courage, kindness, patience, honesty)
 - Story streams token-by-token; a skeleton/progress indicator displays before first token arrives
@@ -108,6 +109,7 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 **Description:** Up to 3 inline illustrations are generated per story using Nano Banana, reflecting the story's scenes and the child's avatar.
 
 **Acceptance criteria:**
+
 - Illustrations appear inline within the story view, not as a separate gallery
 - Images load asynchronously after story text; placeholder shown while generating
 - Image URLs are stored in Vercel Blob; only the URL is saved to the database (no base64)
@@ -120,6 +122,7 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 **Description:** Parents create a profile for each child with a name, age range, and a simple avatar (skin tone, hair color, hair style). The avatar is used as input to illustration generation.
 
 **Acceptance criteria:**
+
 - Profile fields: name (required), age range (required: `0–12m`, `1–2y`, `2–3y`), avatar (optional but encouraged)
 - Avatar builder offers at minimum: 4 skin tone options, 4 hair colors, 3 hair styles
 - Avatar data stored as flat JSON on the Profile record — no separate avatar table
@@ -133,6 +136,7 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 **Description:** A saved stories view scoped per child profile, showing story title (first sentence), date, and thumbnail of the first illustration.
 
 **Acceptance criteria:**
+
 - Stories can be saved immediately after generation with one tap
 - Library view is filterable by child profile
 - Stories display in reverse chronological order
@@ -146,6 +150,7 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 **Description:** Email/password auth via NextAuth.js, with optional Google OAuth. Guest users can generate one story before being prompted to create an account.
 
 **Acceptance criteria:**
+
 - Sign up, login, and logout flows are functional
 - Guest generation is limited to 1 story; saving requires an account
 - All `/api/stories` and `/api/profiles` routes require authentication
@@ -158,6 +163,7 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 **Description:** New visitors can generate one story without an account to experience the core value prop before committing to sign-up.
 
 **Acceptance criteria:**
+
 - Guest flow uses a temporary session; story is not persisted
 - After generation, a prompt appears: "Save this story and create more — it's free"
 - Guest story data is discarded after the session ends
@@ -169,15 +175,15 @@ StoryNest removes the creative burden while keeping parents in the driver's seat
 
 ### 5.1 Stack
 
-| Layer | Choice |
-|---|---|
-| Frontend | React, TypeScript, Tailwind CSS |
-| Backend | Next.js (App Router, API routes) |
-| Database | SQLite (dev) → PostgreSQL (prod), via Prisma |
-| AI | Anthropic Claude API — `claude-sonnet-4-5` |
-| Image gen | Nano Banana |
-| Storage | Vercel Blob |
-| Deployment | Vercel |
+| Layer      | Choice                                       |
+| ---------- | -------------------------------------------- |
+| Frontend   | React, TypeScript, Tailwind CSS              |
+| Backend    | Next.js (App Router, API routes)             |
+| Database   | SQLite (dev) → PostgreSQL (prod), via Prisma |
+| AI         | Anthropic Claude API — `claude-sonnet-4-5`   |
+| Image gen  | Nano Banana                                  |
+| Storage    | Vercel Blob                                  |
+| Deployment | Vercel                                       |
 
 ### 5.2 Performance
 
@@ -275,23 +281,23 @@ model Story {
 
 ## 9. Open Questions
 
-| # | Question | Owner | Status |
-|---|---|---|---|
-| 1 | What is Nano Banana's rate limit and latency p95? Need to confirm illustration SLA. | Engineering | Open |
-| 2 | Should the guest trial story be recoverable after sign-up (via session hand-off)? | Product | Open |
-| 3 | Do we want to support story regeneration (re-roll with same inputs) in v1? | Product | Open |
-| 4 | What happens to stories if a child profile is deleted — cascade delete or orphan? | Engineering | Open |
-| 5 | Is a 5-profile-per-account cap the right limit, or should it be unlimited in v1? | Product | Open |
+| #   | Question                                                                            | Owner       | Status |
+| --- | ----------------------------------------------------------------------------------- | ----------- | ------ |
+| 1   | What is Nano Banana's rate limit and latency p95? Need to confirm illustration SLA. | Engineering | Open   |
+| 2   | Should the guest trial story be recoverable after sign-up (via session hand-off)?   | Product     | Open   |
+| 3   | Do we want to support story regeneration (re-roll with same inputs) in v1?          | Product     | Open   |
+| 4   | What happens to stories if a child profile is deleted — cascade delete or orphan?   | Engineering | Open   |
+| 5   | Is a 5-profile-per-account cap the right limit, or should it be unlimited in v1?    | Product     | Open   |
 
 ---
 
 ## 10. Milestones
 
-| Milestone | Scope | Target |
-|---|---|---|
-| M0 — Foundation | Auth, child profiles, DB schema, project scaffold | Week 1–2 |
-| M1 — Core loop | Story generation (text only), input form, streaming | Week 3–4 |
-| M2 — Illustrations | Avatar builder, Nano Banana integration, Vercel Blob | Week 5–6 |
-| M3 — Library | Save/browse/delete stories, guest trial flow | Week 7–8 |
-| M4 — Polish | Empty states, error handling, accessibility audit, performance | Week 9–10 |
-| M5 — Launch | Prod deploy, monitoring, soft launch | Week 11 |
+| Milestone          | Scope                                                          | Target    |
+| ------------------ | -------------------------------------------------------------- | --------- |
+| M0 — Foundation    | Auth, child profiles, DB schema, project scaffold              | Week 1–2  |
+| M1 — Core loop     | Story generation (text only), input form, streaming            | Week 3–4  |
+| M2 — Illustrations | Avatar builder, Nano Banana integration, Vercel Blob           | Week 5–6  |
+| M3 — Library       | Save/browse/delete stories, guest trial flow                   | Week 7–8  |
+| M4 — Polish        | Empty states, error handling, accessibility audit, performance | Week 9–10 |
+| M5 — Launch        | Prod deploy, monitoring, soft launch                           | Week 11   |

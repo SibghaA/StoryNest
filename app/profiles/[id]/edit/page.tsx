@@ -5,11 +5,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { ProfileForm } from '@/components/profile-form'
 
-export default async function EditProfilePage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+export default async function EditProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session) redirect('/auth/login')
 

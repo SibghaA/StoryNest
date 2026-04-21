@@ -31,6 +31,7 @@ npm install --save-dev @playwright/test
 ```
 
 **Verify** with `claude mcp list` — you should see:
+
 ```
 playwright: npx -y @playwright/mcp - ✓ Connected
 ```
@@ -38,6 +39,7 @@ playwright: npx -y @playwright/mcp - ✓ Connected
 ## What this enables
 
 Once connected, Claude Code can control a real Chromium browser to:
+
 - Navigate pages and assert URLs/redirects
 - Fill forms and click buttons
 - Read rendered text (including streamed content)
@@ -65,9 +67,9 @@ npx playwright test e2e/auth.spec.ts
 
 ## Test files
 
-| File | What it covers |
-|---|---|
-| `e2e/auth.spec.ts` | Auth guards, login page, bad credentials, register page |
+| File                   | What it covers                                                     |
+| ---------------------- | ------------------------------------------------------------------ |
+| `e2e/auth.spec.ts`     | Auth guards, login page, bad credentials, register page            |
 | `e2e/generate.spec.ts` | Story generation form: login → form validation → presets → counter |
 
 ## How generate.spec.ts works

@@ -5,11 +5,13 @@ describe('illustrationSlots', () => {
   it('always returns exactly 3 slots', () => {
     expect(illustrationSlots([])).toHaveLength(3)
     expect(illustrationSlots(['https://cdn.example.com/1.png'])).toHaveLength(3)
-    expect(illustrationSlots([
-      'https://cdn.example.com/1.png',
-      'https://cdn.example.com/2.png',
-      'https://cdn.example.com/3.png',
-    ])).toHaveLength(3)
+    expect(
+      illustrationSlots([
+        'https://cdn.example.com/1.png',
+        'https://cdn.example.com/2.png',
+        'https://cdn.example.com/3.png',
+      ]),
+    ).toHaveLength(3)
   })
 
   it('returns placeholder slots when imageUrls is empty', () => {

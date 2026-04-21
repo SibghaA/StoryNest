@@ -18,13 +18,13 @@ submitted to the professor; a sanitized summary lives in the sprint retro.
 
 ## Shared rating (1–5)
 
-| Dimension | Self | Partner |
-|---|---|---|
-| Ownership — picked up issues without prompting | | |
-| Quality — code landed green, didn't create follow-up fires | | |
-| Communication — standups, PR comments, blocker escalation | | |
-| Reliability — delivered on what they committed in planning | | |
-| Growth — visibly better at something vs. start of sprint | | |
+| Dimension                                                  | Self | Partner |
+| ---------------------------------------------------------- | ---- | ------- |
+| Ownership — picked up issues without prompting             |      |         |
+| Quality — code landed green, didn't create follow-up fires |      |         |
+| Communication — standups, PR comments, blocker escalation  |      |         |
+| Reliability — delivered on what they committed in planning |      |         |
+| Growth — visibly better at something vs. start of sprint   |      |         |
 
 ## Free text
 

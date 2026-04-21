@@ -54,7 +54,10 @@ export function StoryList({ stories }: { stories: Story[]; profileId: string }) 
               <p className="mb-1 text-sm leading-snug text-gray-800">{preview}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {keywords.map(kw => (
-                  <span key={kw} className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                  <span
+                    key={kw}
+                    className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700"
+                  >
                     {kw}
                   </span>
                 ))}

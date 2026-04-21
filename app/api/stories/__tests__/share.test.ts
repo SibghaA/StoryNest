@@ -37,7 +37,11 @@ const noSession = () => {
 }
 
 beforeAll(() => {
-  try { unlinkSync(TEST_DB_PATH) } catch { /* file may not exist */ }
+  try {
+    unlinkSync(TEST_DB_PATH)
+  } catch {
+    /* file may not exist */
+  }
   execSync('npx prisma db push --skip-generate', {
     env: { ...process.env, DATABASE_URL: TEST_DB_URL },
     stdio: 'pipe',
@@ -91,10 +95,9 @@ function shareRequest(recipientEmail: string) {
 describe('POST /api/stories/[id]/share', () => {
   it('returns 401 when not authenticated', async () => {
     noSession()
-    const res = await shareStory(
-      shareRequest('other@test.com'),
-      { params: Promise.resolve({ id: 'any-id' }) },
-    )
+    const res = await shareStory(shareRequest('other@test.com'), {
+      params: Promise.resolve({ id: 'any-id' }),
+    })
     expect(res.status).toBe(401)
     const body = await res.json()
     expect(body.error).toBe('Unauthorized')
@@ -105,10 +108,9 @@ describe('POST /api/stories/[id]/share', () => {
     await createUser('user-2', 'u2@test.com')
     mockSession('user-1')
 
-    const res = await shareStory(
-      shareRequest('u2@test.com'),
-      { params: Promise.resolve({ id: 'nonexistent-story-id' }) },
-    )
+    const res = await shareStory(shareRequest('u2@test.com'), {
+      params: Promise.resolve({ id: 'nonexistent-story-id' }),
+    })
     expect(res.status).toBe(404)
     const body = await res.json()
     expect(body.error).toMatch(/not found/i)
@@ -122,10 +124,9 @@ describe('POST /api/stories/[id]/share', () => {
     const story = await createStory(profile2.id)
     mockSession('user-1') // user-1 tries to share user-2's story
 
-    const res = await shareStory(
-      shareRequest('u3@test.com'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    const res = await shareStory(shareRequest('u3@test.com'), {
+      params: Promise.resolve({ id: story.id }),
+    })
     expect(res.status).toBe(403)
     const body = await res.json()
     expect(body.error).toMatch(/forbidden/i)
@@ -152,10 +153,9 @@ describe('POST /api/stories/[id]/share', () => {
     const story = await createStory(profile.id)
     mockSession('user-1')
 
-    const res = await shareStory(
-      shareRequest('not-an-email'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    const res = await shareStory(shareRequest('not-an-email'), {
+      params: Promise.resolve({ id: story.id }),
+    })
     expect(res.status).toBe(400)
   })
 
@@ -165,10 +165,9 @@ describe('POST /api/stories/[id]/share', () => {
     const story = await createStory(profile.id)
     mockSession('user-1')
 
-    const res = await shareStory(
-      shareRequest('nobody@test.com'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    const res = await shareStory(shareRequest('nobody@test.com'), {
+      params: Promise.resolve({ id: story.id }),
+    })
     expect(res.status).toBe(404)
     const body = await res.json()
     expect(body.error).toMatch(/recipient/i)
@@ -180,10 +179,9 @@ describe('POST /api/stories/[id]/share', () => {
     const story = await createStory(profile.id)
     mockSession('user-1')
 
-    const res = await shareStory(
-      shareRequest('u1@test.com'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    const res = await shareStory(shareRequest('u1@test.com'), {
+      params: Promise.resolve({ id: story.id }),
+    })
     expect(res.status).toBe(400)
     const body = await res.json()
     expect(body.error).toMatch(/yourself/i)
@@ -196,10 +194,9 @@ describe('POST /api/stories/[id]/share', () => {
     const story = await createStory(profile.id)
     mockSession('user-1')
 
-    const res = await shareStory(
-      shareRequest('u2@test.com'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    const res = await shareStory(shareRequest('u2@test.com'), {
+      params: Promise.resolve({ id: story.id }),
+    })
     expect(res.status).toBe(201)
     const body = await res.json()
     expect(body.data.storyId).toBe(story.id)
@@ -220,16 +217,12 @@ describe('POST /api/stories/[id]/share', () => {
     mockSession('user-1')
 
     // First share succeeds
-    await shareStory(
-      shareRequest('u2@test.com'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    await shareStory(shareRequest('u2@test.com'), { params: Promise.resolve({ id: story.id }) })
 
     // Second share is a duplicate
-    const res = await shareStory(
-      shareRequest('u2@test.com'),
-      { params: Promise.resolve({ id: story.id }) },
-    )
+    const res = await shareStory(shareRequest('u2@test.com'), {
+      params: Promise.resolve({ id: story.id }),
+    })
     expect(res.status).toBe(409)
     const body = await res.json()
     expect(body.error).toMatch(/already shared/i)

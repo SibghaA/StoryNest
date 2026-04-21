@@ -32,9 +32,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ data: { id: user.id }, error: null }, { status: 201 })
   } catch {
-    return NextResponse.json(
-      { data: null, error: 'Unexpected error' },
-      { status: 500 },
-    )
+    return NextResponse.json({ data: null, error: 'Unexpected error' }, { status: 500 })
   }
 }

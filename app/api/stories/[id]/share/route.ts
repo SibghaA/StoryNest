@@ -43,10 +43,7 @@ export async function POST(request: Request, { params }: { params: Params }) {
     // Look up recipient
     const recipient = await prisma.user.findUnique({ where: { email: recipientEmail } })
     if (!recipient) {
-      return NextResponse.json(
-        { data: null, error: 'Recipient not found' },
-        { status: 404 },
-      )
+      return NextResponse.json({ data: null, error: 'Recipient not found' }, { status: 404 })
     }
 
     // Prevent sharing with yourself

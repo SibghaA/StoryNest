@@ -7,6 +7,7 @@ the pattern so future sprints can use it without re-deriving it.
 ## Why worktrees
 
 Without worktrees, parallel work means:
+
 - Stashing the current branch, checking out another, re-installing deps,
   rebuilding Prisma, rerunning the dev server.
 - Or: two clones of the repo, duplicated `node_modules`, diverging `.env.local`.
@@ -42,6 +43,7 @@ PORT=3101 npm run dev                   # unique port per worktree
 ## How Claude Code was used
 
 One Claude Code session per worktree. Each session:
+
 - Has its own `.claude/` (inherited from the branch).
 - Sees only the branch's files.
 - Runs the `add-feature` skill independently.

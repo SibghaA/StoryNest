@@ -23,7 +23,12 @@ export function StoryStreamViewer({ storyId, childNames }: StoryStreamViewerProp
 
         if (!res.ok || !res.body) {
           const data = await res.json().catch(() => ({}))
-          if (!cancelled) setError(typeof data.error === 'string' ? data.error : 'Story generation failed. Please try again.')
+          if (!cancelled)
+            setError(
+              typeof data.error === 'string'
+                ? data.error
+                : 'Story generation failed. Please try again.',
+            )
           return
         }
 
@@ -33,7 +38,10 @@ export function StoryStreamViewer({ storyId, childNames }: StoryStreamViewerProp
         while (true) {
           const { done: streamDone, value } = await reader.read()
           if (streamDone) break
-          if (cancelled) { reader.cancel(); return }
+          if (cancelled) {
+            reader.cancel()
+            return
+          }
           setText(prev => prev + decoder.decode(value, { stream: true }))
         }
 
@@ -48,7 +56,9 @@ export function StoryStreamViewer({ storyId, childNames }: StoryStreamViewerProp
     }
 
     stream()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [storyId, router])
 
   if (error) {

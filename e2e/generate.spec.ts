@@ -81,7 +81,9 @@ test.describe('Story generation form', () => {
     await page.goto('/generate')
 
     // 3 keyword inputs each have a duck/puddles/giggling style placeholder
-    const inputs = page.locator('input[placeholder^="e.g. "]').filter({ hasNotText: 'ask for help' })
+    const inputs = page
+      .locator('input[placeholder^="e.g. "]')
+      .filter({ hasNotText: 'ask for help' })
     // Use the grid container to scope — keyword inputs are inside the 3-col grid
     const keywordInputs = page.locator('.grid.grid-cols-3 input')
     await expect(keywordInputs).toHaveCount(3)

@@ -74,7 +74,7 @@ Two things worth calling out:
 **The generate flow is split across two routes.** `POST /api/stories/generate`
 creates the `Story` row and returns an ID. `GET /api/stories/[id]/stream` streams
 the tokens. The split feels like over-engineering on paper, but it means the
-client has a stable URL to navigate to *before* the stream starts. Parents get
+client has a stable URL to navigate to _before_ the stream starts. Parents get
 a bookmarkable page immediately, even while the text is still arriving. The
 naive single-POST-streams-everything approach fights the App Router's routing
 model; this one works with it.
@@ -168,7 +168,7 @@ invisible.
 
 **A pre-generate validation hook.** Every generation costs money and latency.
 A hook that checks `.env.local` exists, dev server is up, test DB is clean
-*before* firing a generation removes a recurring source of friction.
+_before_ firing a generation removes a recurring source of friction.
 
 **Guest-flow session hand-off.** PRD says guests can generate one story
 without an account. Currently the story is discarded. A sign-up CTA that
@@ -186,6 +186,7 @@ that you need them at all.
 ---
 
 **Links:**
+
 - GitHub: <https://github.com/SibghaA/StoryNest>
 - Deployed: <https://storynest.vercel.app> [PLACEHOLDER — final URL]
 - Video demo: <link to YouTube / Loom>

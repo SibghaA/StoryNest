@@ -10,14 +10,14 @@ export async function generateImage(prompt: string): Promise<string> {
 
   fal.config({ credentials: key })
 
-  const result = await fal.subscribe('fal-ai/flux/schnell', {
+  const result = (await fal.subscribe('fal-ai/flux/schnell', {
     input: {
       prompt,
       image_size: 'square_hd',
       num_inference_steps: 4,
       num_images: 1,
     },
-  }) as { data: FalResult }
+  })) as { data: FalResult }
 
   const url = result.data?.images?.[0]?.url
   if (!url) throw new Error('No image returned from fal.ai')
